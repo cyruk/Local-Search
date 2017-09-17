@@ -22,7 +22,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 
-		TextInputDialog dialog = new TextInputDialog("10");
+		TextInputDialog dialog = new TextInputDialog("11");
 		dialog.setTitle("Dimensions");
 		dialog.setHeaderText("What are the dimensions of your NxN square");
 		dialog.setContentText("Please enter your N:");
@@ -31,9 +31,12 @@ public class Main extends Application {
 		int n = Integer.valueOf(result.get());
 
 		GridPane grid = new GridPane();
+		Random randomGenerator = new Random();
+	    int randomInt;
 
 	    for (int row = 0; row < n; row++) {
 	        for (int col = 0; col < n; col++) {
+	        	Text hello;
 	            Rectangle rec = new Rectangle();
 	            rec.setWidth(40);
 	            rec.setHeight(40);
@@ -42,7 +45,40 @@ public class Main extends Application {
 
 	            //Create container to be able to hold text
 	            StackPane pane = new StackPane();
-	            pane.getChildren().addAll(rec, new Text(row+","+col));
+	            
+	            //checks what numbers can be generated in that square
+	            if (row >= col)
+	            {
+	            	if (row == n-1 && col == n-1)
+	            	{
+	            		hello = new Text("0");
+	            	}
+	            	else
+	            	{
+		            	if ((n-1) - col >= row - 0)
+		            	{
+		            		hello = new Text(Integer.toString(randomGenerator.nextInt((n-1) - col) + 1));
+		            	}
+		            	else
+		            	{
+		            		hello = new Text(Integer.toString(randomGenerator.nextInt(row - 0) + 1));
+		            	}
+	            	}
+	            }
+	            else 
+	            {
+	            	if ((n-1) - row >= col - 0)
+	            	{
+	            		hello = new Text(Integer.toString(randomGenerator.nextInt((n-1) - row) + 1));
+	            	}
+	            	else
+	            	{
+	            		hello = new Text(Integer.toString(randomGenerator.nextInt(col - 0) + 1));
+	            	}
+	            }
+	            
+	            //add in text
+	            pane.getChildren().addAll(rec, hello);
 
 	            GridPane.setRowIndex(pane, row);
 	            GridPane.setColumnIndex(pane, col);
