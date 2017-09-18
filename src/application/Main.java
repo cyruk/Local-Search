@@ -18,7 +18,6 @@ import javafx.scene.text.Text;
 public class Main extends Application {
 
 
-
 	@Override
 	public void start(Stage primaryStage) {
 
@@ -32,7 +31,6 @@ public class Main extends Application {
 
 		GridPane grid = new GridPane();
 		Random randomGenerator = new Random();
-	    int randomInt;
 
 	    for (int row = 0; row < n; row++) {
 	        for (int col = 0; col < n; col++) {
@@ -79,15 +77,14 @@ public class Main extends Application {
 	            
 	            //add in text
 	            pane.getChildren().addAll(rec, hello);
-
 	            GridPane.setRowIndex(pane, row);
 	            GridPane.setColumnIndex(pane, col);
 	            grid.getChildren().add(pane);
 	        }
 	    }
+	    
 
 	    Scene scene = new Scene(grid, 500, 500);
-
 	    primaryStage.setTitle("Grid");
 	    primaryStage.setScene(scene);
 	    primaryStage.show();
