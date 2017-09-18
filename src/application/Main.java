@@ -51,6 +51,7 @@ public class Main extends Application {
 	            grid.getChildren().add(pane);
 	        }
 	    }
+
 	    Scene scene = new Scene(grid, 500, 500);
 
 	    primaryStage.setTitle("Grid");

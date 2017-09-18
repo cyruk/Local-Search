@@ -35,6 +35,35 @@ public class Grid {
 	}
 
 	public Cell getCell(int row, int col){
-		return gridValues[row][col];
+		if(row>=0 && row<=gridValues.length && col>=0 && col<=gridValues[0].length){
+			return gridValues[row][col];
+		}
+		return null;
+	}
+
+	public Cell getTopNeighbor(int row, int col){
+		return getCell(row-getCell(row, col).value, col);
+	}
+
+	public Cell getRightNeighbor(int row, int col){
+		return getCell(row, col+getCell(row, col).value);
+	}
+
+	public Cell getBottomNeighbor(int row, int col){
+		return getCell(row+getCell(row, col).value, col);
+	}
+
+	public Cell getLeftNeighbor(int row, int col){
+		return getCell(row, col-getCell(row, col).value);
+	}
+
+	//returns all of the surrounding possible moves, null if not possible
+	public Cell[] getAllNeighbors(int row, int col){
+		Cell[] neigbors = {getTopNeighbor(row, col),
+			getRightNeighbor(row, col),
+			getBottomNeighbor(row, col),
+			getLeftNeighbor(row, col)};
+
+		return neigbors;
 	}
 }
