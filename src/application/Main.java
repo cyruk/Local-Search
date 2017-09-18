@@ -1,13 +1,11 @@
 package application;
 
 import java.util.Optional;
-import java.util.Random;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -30,13 +28,12 @@ public class Main extends Application {
 		Optional<String> result = dialog.showAndWait();
 		int n = Integer.valueOf(result.get());
 
+		Grid gridStruct = new Grid(n); //created a data structure to represent the grid and cells and moved generation code there
 		GridPane grid = new GridPane();
-		Random randomGenerator = new Random();
-	    int randomInt;
 
 	    for (int row = 0; row < n; row++) {
 	        for (int col = 0; col < n; col++) {
-	        	Text hello;
+	        	Text numberText;
 	            Rectangle rec = new Rectangle();
 	            rec.setWidth(40);
 	            rec.setHeight(40);
@@ -45,47 +42,15 @@ public class Main extends Application {
 
 	            //Create container to be able to hold text
 	            StackPane pane = new StackPane();
-	            
-	            //checks what numbers can be generated in that square
-	            if (row >= col)
-	            {
-	            	if (row == n-1 && col == n-1)
-	            	{
-	            		hello = new Text("0");
-	            	}
-	            	else
-	            	{
-		            	if ((n-1) - col >= row - 0)
-		            	{
-		            		hello = new Text(Integer.toString(randomGenerator.nextInt((n-1) - col) + 1));
-		            	}
-		            	else
-		            	{
-		            		hello = new Text(Integer.toString(randomGenerator.nextInt(row - 0) + 1));
-		            	}
-	            	}
-	            }
-	            else 
-	            {
-	            	if ((n-1) - row >= col - 0)
-	            	{
-	            		hello = new Text(Integer.toString(randomGenerator.nextInt((n-1) - row) + 1));
-	            	}
-	            	else
-	            	{
-	            		hello = new Text(Integer.toString(randomGenerator.nextInt(col - 0) + 1));
-	            	}
-	            }
-	            
-	            //add in text
-	            pane.getChildren().addAll(rec, hello);
+	            numberText = new Text(Integer.toString(gridStruct.getCell(row, col).value));
 
+	            //add in text
+	            pane.getChildren().addAll(rec, numberText);
 	            GridPane.setRowIndex(pane, row);
 	            GridPane.setColumnIndex(pane, col);
 	            grid.getChildren().add(pane);
 	        }
 	    }
-
 	    Scene scene = new Scene(grid, 500, 500);
 
 	    primaryStage.setTitle("Grid");
