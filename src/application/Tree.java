@@ -1,52 +1,21 @@
 package application;
 
-import java.util.Random;
-
 public class Tree{
     public Node root;
-    
-    public Tree(int data, int row, int col)
+
+    public Tree()
     {
-    	root = new Node(data, row, col);
+    	root = null;
     }
-    
-    public void add(int data, int row, int col)
+
+    public Tree(Cell contents)
     {
-    	root.children.add(new Node(data, row, col));
+    	root = new Node(contents);
     }
-    
-    //used to find the node so you can add children to it
-    public Node find(int row, int col)
+
+    public void add(Cell contents)
     {
-    	Random randomGenerator = new Random();
-    	int visited;
-    	if (root.visited > 100)
-    	{
-    		visited = randomGenerator.nextInt(100);
-    	}
-    	else
-    	{
-    		visited = randomGenerator.nextInt(100) + root.visited + 1;
-    	}
-    	root.visited = visited;
-    	Node temp;
-    	Queue newQueue = new Queue(root);
-    	while (!newQueue.isEmpty())
-    	{
-    		temp = newQueue.dequeue();
-    		if (temp.row == row && temp.col == col)
-    		{
-    			return temp;
-    		}
-    		for (int i = 0; i < temp.children.size(); i++)
-    		{
-    			if (temp.children.get(i).visited != visited)
-    			{
-    				newQueue.enqueue(temp.children.get(i));
-    				temp.children.get(i).visited = visited;
-    			}
-    		}
-    	}
-    	return null;
+    	root.children.add(new Node(contents));
     }
+
 }

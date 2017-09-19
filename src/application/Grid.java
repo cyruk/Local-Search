@@ -35,10 +35,18 @@ public class Grid {
 	}
 
 	public Cell getCell(int row, int col){
-		if(row>=0 && row<=gridValues.length && col>=0 && col<=gridValues[0].length){
+		if(row>=0 && row<gridValues.length && col>=0 && col<gridValues[0].length){
 			return gridValues[row][col];
 		}
 		return null;
+	}
+
+	public void clearVisitations(){
+		for (int row = 0; row < gridValues.length; row++) {
+			for (int col = 0; col < gridValues[0].length; col++) {
+				this.gridValues[row][col].isVisited = false;
+			}
+		}
 	}
 
 	public Cell getTopNeighbor(int row, int col){
@@ -65,5 +73,62 @@ public class Grid {
 			getLeftNeighbor(row, col)};
 
 		return neigbors;
+	}
+
+
+
+	public void setUpFullGridVisualization(){
+		bfs(0,0);
+	}
+
+	public int evaluate(){
+		this.clearVisitations();
+		bfs(0, 0);
+		if(this.getCell(gridValues.length-1, gridValues[0].length-1).depth == -1){
+			int unreachableCount = 0;
+			for (int row = 0; row < gridValues.length; row++) {
+				for (int col = 0; col < gridValues[0].length; col++) {
+					if(this.gridValues[row][col].depth == -1){
+						unreachableCount++;
+					}
+				}
+			}
+			return -1*unreachableCount;
+		}
+		return this.getCell(gridValues.length-1, gridValues[0].length-1).depth;
+	}
+
+
+	public boolean bfs(int startRow, int startCol){
+		Queue unvisited = new Queue();
+		unvisited.push(this.getCell(startRow, startCol));
+		this.getCell(0, 0).depth = 0;
+		Cell currentCell;
+
+		while(!unvisited.isEmpty()){
+			//System.out.println("queue: "+unvisited);
+			currentCell = unvisited.pop();
+			currentCell.isVisited = true;
+
+			//System.out.println(currentCell.row + ", "+currentCell.col + ": "+currentCell.value + "| visited: "+currentCell.isVisited);
+			Cell[] possibleMoves = this.getAllNeighbors(currentCell.row, currentCell.col);
+    		for (int i = 0; i < possibleMoves.length; i++)
+    		{
+    			if (possibleMoves[i] != null && !possibleMoves[i].isVisited)
+    			{
+    				if(possibleMoves[i].value == 0){
+    					//gridStruct.clearVisitations();
+    					possibleMoves[i].isVisited = true;
+    					possibleMoves[i].depth = currentCell.depth+1;
+    					//return true;
+    				}
+    				//System.out.println(possibleMoves[i].row +", "+possibleMoves[i].col);
+    				possibleMoves[i].depth = currentCell.depth+1;
+    				unvisited.push(possibleMoves[i]);
+    			}
+    		}
+		}
+		//gridStruct.clearVisitations();
+		return false;
 	}
 }

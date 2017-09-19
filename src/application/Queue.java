@@ -1,71 +1,33 @@
 package application;
 
+import java.util.ArrayList;
 
 public class Queue{
-	public Node tail;
-	
-	public Queue(int data, int row, int col)
-	{
-		tail = new Node(data, row, col);
-		tail.next = tail;
+	public ArrayList<Cell> list = new ArrayList<Cell>();
+
+	public void push(Cell cell){
+		this.list.add(cell);
 	}
-	
-	public Queue(Node node)
-	{
-		tail = node;
-		tail.next = tail;
+
+	public Cell pop(){
+
+		Cell tail = this.isEmpty() ? null : this.list.get(list.size()-1);
+		this.list.remove(list.size()-1);
+		return tail;
 	}
-	public void enqueue(int data, int row, int col){
-		Node temp = new Node(data, row, col);
-		if (tail == null)
-		{
-			tail = temp;
-			tail.next = tail;
-		}
-		else
-		{
-			temp.next = tail.next;
-			tail.next = temp;
-			tail = temp;
-		}
+
+	public boolean isEmpty(){
+		return this.list.isEmpty();
 	}
-	
-	public void enqueue(Node node)
-	{
-		Node temp = node;
-		if (tail == null)
+
+	public String toString(){
+		String listString = "";
+
+		for (Cell c : this.list)
 		{
-			tail = temp;
-			tail.next = tail;
+		    listString += c+"|";
 		}
-		else
-		{
-			temp.next = tail.next;
-			tail.next = temp;
-			tail = temp;
-		}
-	}
-	
-	public Node dequeue(){
-		Node temp = tail.next;
-		if (tail == tail.next)
-		{
-			tail = null;
-		}
-		else
-		{
-			tail.next = tail.next.next;
-		}
-		return temp;
-	}
-	
-	public Node peek()
-	{
-		return tail.next;
-	}
-	
-	public boolean isEmpty()
-	{
-		return tail == null;
+
+		return listString;
 	}
 }

@@ -7,15 +7,15 @@ public class Node{
 	public int data, row, col, visited;
 	public Node next, parent;
 	public ArrayList<Node> children = new ArrayList<Node>();
-	
-	public Node(int data, int row, int col)
+	public Cell contents;
+
+
+	public Node(Cell contents)
 	{
-		this.data = data;
-		this.row = row;
-		this.col = col;
+		this.contents = contents;
 		visited = 0;
 	}
-	
+
 	public boolean hasChildren()
 	{
 		return children.isEmpty();

@@ -1,7 +1,6 @@
 package application;
 
 import java.util.Optional;
-import java.util.Random;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -28,10 +27,11 @@ public class Main extends Application {
 
 		Optional<String> result = dialog.showAndWait();
 		int n = Integer.valueOf(result.get());
-		int[][] sideArray = new int[n][n];
 
 		Grid gridStruct = new Grid(n); //created a data structure to represent the grid and cells and moved generation code there
 		GridPane grid = new GridPane();
+
+		gridStruct.setUpFullGridVisualization();//sets up the grid to be visualized with colors, and adds depths(num of moves) from start
 
 	    for (int row = 0; row < n; row++) {
 	        for (int col = 0; col < n; col++) {
@@ -39,12 +39,19 @@ public class Main extends Application {
 	            Rectangle rec = new Rectangle();
 	            rec.setWidth(40);
 	            rec.setHeight(40);
-	            rec.setFill(Color.TRANSPARENT);
+
+	            if(gridStruct.getCell(row, col).depth == 0 && gridStruct.getCell(row, col).isVisited){
+	            	rec.setFill(Color.LIGHTBLUE);
+	            }else if(gridStruct.getCell(row, col).isVisited){
+	            	rec.setFill(Color.GREEN);
+	            }else{
+	            	rec.setFill(Color.RED);
+	            }
 	            rec.setStroke(Color.BLACK);
 
 	            //Create container to be able to hold text
 	            StackPane pane = new StackPane();
-	            numberText = new Text(Integer.toString(gridStruct.getCell(row, col).value));
+	            numberText = new Text(gridStruct.getCell(row, col).value+":"+gridStruct.getCell(row, col).depth);
 
 	            //add in text
 	            pane.getChildren().addAll(rec, numberText);
@@ -55,53 +62,16 @@ public class Main extends Application {
 	    }
 
 	    Scene scene = new Scene(grid, 500, 500);
-	    
-    	int visited = 1;
-	    Cell[] cellular;
-	    Tree tree = new Tree(gridStruct.gridValues[0][0].value, gridStruct.gridValues[0][0].row, gridStruct.gridValues[0][0].col);
-	    gridStruct.gridValues[0][0].isVisited = true;
-	    //sideArray keeps track of visited squares
-	    sideArray[0][0] = 1;
-	    Queue newQueue = new Queue(tree.root);
-	    Node temp = tree.root;
-    	
-	    //using breadth first search here
-	    while (!newQueue.isEmpty())
-    	{
-    		temp = newQueue.dequeue();
-    		//breaks when it finds the goal which is not what you want
-    		if (temp.row == n - 1 && temp.col == n - 1)
-    		{
-    			break;
-    		}
-    		//gets the "children" for the cell
-    		//getting an arrayindexoutofboundsexception somewhere here
-    		cellular = gridStruct.getAllNeighbors(temp.row, temp.col);
-    		for (int i = 0; i < cellular.length; i++)
-    		{
-    			if (cellular[i] != null && temp.visited != visited)
-    			{
-    				cellular[i].isVisited = true;
-    				temp.visited = visited;
-    				sideArray[cellular[i].row][cellular[i].col] = 1;
-    				newQueue.enqueue(new Node(cellular[i].value, cellular[i].row, cellular[i].col));
-    			}
-    		}
-    	}
-	    
-	    for (int i = 0; i < n; i++)
-	    {
-	    	for (int j = 0; j < n; j++)
-	    	{
-	    		System.out.print(sideArray[i][j]);
-	    	}
-	    	System.out.println();
-	    }
-	    
+
 	    primaryStage.setTitle("Grid");
 	    primaryStage.setScene(scene);
 	    primaryStage.show();
+
+	    //this evaluates the shortest number of moves from the given start to the end
+	    System.out.println(gridStruct.evaluate());
 	}
+
+
 
 	public static void main(String[] args) {
 		launch(args);
