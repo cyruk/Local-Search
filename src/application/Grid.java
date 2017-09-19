@@ -103,12 +103,12 @@ public class Grid {
 		Queue unvisited = new Queue();
 		unvisited.enqueue(this.getCell(startRow, startCol));
 		this.getCell(0, 0).depth = 0;
+		this.getCell(0, 0).isVisited = true;
 		Cell currentCell;
 
 		while(!unvisited.isEmpty()){
 			System.out.println(unvisited.toString()); 
 			currentCell = unvisited.dequeue();
-			currentCell.isVisited = true;
 
 			Cell[] possibleMoves = this.getAllNeighbors(currentCell.row, currentCell.col);
     		for (int i = 0; i < possibleMoves.length; i++)
@@ -119,9 +119,13 @@ public class Grid {
     					possibleMoves[i].isVisited = true;
     					possibleMoves[i].depth = currentCell.depth+1;
     				}
-    				//why is the depth wrong here? sometimes it has a larger value
-    				possibleMoves[i].depth = currentCell.depth+1;
-    				unvisited.enqueue(possibleMoves[i]);
+    				else
+    				{
+	    				possibleMoves[i].depth = currentCell.depth+1;
+	    				//this is required because for some reason some cells get queued twice and it changes the depth
+	    				possibleMoves[i].isVisited = true;
+	    				unvisited.enqueue(possibleMoves[i]);
+    				}
     			}
     		}
 		}
