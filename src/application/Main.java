@@ -1,6 +1,7 @@
 package application;
 
 import java.util.Optional;
+import java.util.Random;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -27,6 +28,7 @@ public class Main extends Application {
 
 		Optional<String> result = dialog.showAndWait();
 		int n = Integer.valueOf(result.get());
+		int[][] sideArray = new int[n][n];
 
 		Grid gridStruct = new Grid(n); //created a data structure to represent the grid and cells and moved generation code there
 		GridPane grid = new GridPane();
@@ -53,7 +55,49 @@ public class Main extends Application {
 	    }
 
 	    Scene scene = new Scene(grid, 500, 500);
-
+	    
+    	int visited = 1;
+	    Cell[] cellular;
+	    Tree tree = new Tree(gridStruct.gridValues[0][0].value, gridStruct.gridValues[0][0].row, gridStruct.gridValues[0][0].col);
+	    gridStruct.gridValues[0][0].isVisited = true;
+	    //sideArray keeps track of visited squares
+	    sideArray[0][0] = 1;
+	    Queue newQueue = new Queue(tree.root);
+	    Node temp = tree.root;
+    	
+	    //using breadth first search here
+	    while (!newQueue.isEmpty())
+    	{
+    		temp = newQueue.dequeue();
+    		//breaks when it finds the goal which is not what you want
+    		if (temp.row == n - 1 && temp.col == n - 1)
+    		{
+    			break;
+    		}
+    		//gets the "children" for the cell
+    		//getting an arrayindexoutofboundsexception somewhere here
+    		cellular = gridStruct.getAllNeighbors(temp.row, temp.col);
+    		for (int i = 0; i < cellular.length; i++)
+    		{
+    			if (cellular[i] != null && temp.visited != visited)
+    			{
+    				cellular[i].isVisited = true;
+    				temp.visited = visited;
+    				sideArray[cellular[i].row][cellular[i].col] = 1;
+    				newQueue.enqueue(new Node(cellular[i].value, cellular[i].row, cellular[i].col));
+    			}
+    		}
+    	}
+	    
+	    for (int i = 0; i < n; i++)
+	    {
+	    	for (int j = 0; j < n; j++)
+	    	{
+	    		System.out.print(sideArray[i][j]);
+	    	}
+	    	System.out.println();
+	    }
+	    
 	    primaryStage.setTitle("Grid");
 	    primaryStage.setScene(scene);
 	    primaryStage.show();

@@ -15,19 +15,19 @@ public class Grid {
 			for (int col = 0; col < size; col++) {
 				if (row >= col) {
 					if (row == size - 1 && col == size - 1) {
-						gridValues[row][col] = new Cell(0);
+						gridValues[row][col] = new Cell(0, row, col);
 					} else {
 						if ((size - 1) - col >= row - 0) {
-							gridValues[row][col]  = new Cell(randomGenerator.nextInt((size - 1) - col) + 1);
+							gridValues[row][col]  = new Cell(randomGenerator.nextInt((size - 1) - col) + 1, row, col);
 						} else {
-							gridValues[row][col]  = new Cell(randomGenerator.nextInt(row - 0) + 1);
+							gridValues[row][col]  = new Cell(randomGenerator.nextInt(row - 0) + 1, row, col);
 						}
 					}
 				} else {
 					if ((size - 1) - row >= col - 0) {
-						gridValues[row][col]  = new Cell(randomGenerator.nextInt((size - 1) - row) + 1);
+						gridValues[row][col]  = new Cell(randomGenerator.nextInt((size - 1) - row) + 1, row, col);
 					} else {
-						gridValues[row][col]  = new Cell(randomGenerator.nextInt(col - 0) + 1);
+						gridValues[row][col]  = new Cell(randomGenerator.nextInt(col - 0) + 1, row, col);
 					}
 				}
 			}
