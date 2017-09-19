@@ -82,8 +82,8 @@ public class Grid {
 	}
 
 	public int evaluate(){
-		this.clearVisitations();
-		bfs(0, 0);
+		//this.clearVisitations();
+		//bfs(0, 0);
 		if(this.getCell(gridValues.length-1, gridValues[0].length-1).depth == -1){
 			int unreachableCount = 0;
 			for (int row = 0; row < gridValues.length; row++) {
@@ -101,34 +101,30 @@ public class Grid {
 
 	public boolean bfs(int startRow, int startCol){
 		Queue unvisited = new Queue();
-		unvisited.push(this.getCell(startRow, startCol));
+		unvisited.enqueue(this.getCell(startRow, startCol));
 		this.getCell(0, 0).depth = 0;
 		Cell currentCell;
 
 		while(!unvisited.isEmpty()){
-			//System.out.println("queue: "+unvisited);
-			currentCell = unvisited.pop();
+			System.out.println(unvisited.toString()); 
+			currentCell = unvisited.dequeue();
 			currentCell.isVisited = true;
 
-			//System.out.println(currentCell.row + ", "+currentCell.col + ": "+currentCell.value + "| visited: "+currentCell.isVisited);
 			Cell[] possibleMoves = this.getAllNeighbors(currentCell.row, currentCell.col);
     		for (int i = 0; i < possibleMoves.length; i++)
     		{
     			if (possibleMoves[i] != null && !possibleMoves[i].isVisited)
     			{
     				if(possibleMoves[i].value == 0){
-    					//gridStruct.clearVisitations();
     					possibleMoves[i].isVisited = true;
     					possibleMoves[i].depth = currentCell.depth+1;
-    					//return true;
     				}
-    				//System.out.println(possibleMoves[i].row +", "+possibleMoves[i].col);
+    				//why is the depth wrong here? sometimes it has a larger value
     				possibleMoves[i].depth = currentCell.depth+1;
-    				unvisited.push(possibleMoves[i]);
+    				unvisited.enqueue(possibleMoves[i]);
     			}
     		}
 		}
-		//gridStruct.clearVisitations();
 		return false;
 	}
 }

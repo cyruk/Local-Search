@@ -13,6 +13,6 @@ public class Cell {
 	}
 
 	public String toString(){
-		return (this.row+", "+this.col+": "+this.value);
+		return (this.row+", "+this.col);
 	}
 }
