@@ -81,9 +81,18 @@ public class Grid {
 		bfs(0,0);
 	}
 
+	public void resetDepths(){
+		for (int row = 0; row < gridValues.length; row++) {
+			for (int col = 0; col < gridValues[0].length; col++) {
+				this.gridValues[row][col].depth = -1;
+			}
+		}
+	}
+
 	public int evaluate(){
-		//this.clearVisitations();
-		//bfs(0, 0);
+		this.clearVisitations();
+		this.resetDepths();
+		bfs(0, 0);
 		if(this.getCell(gridValues.length-1, gridValues[0].length-1).depth == -1){
 			int unreachableCount = 0;
 			for (int row = 0; row < gridValues.length; row++) {
@@ -98,7 +107,6 @@ public class Grid {
 		return this.getCell(gridValues.length-1, gridValues[0].length-1).depth;
 	}
 
-
 	public boolean bfs(int startRow, int startCol){
 		Queue unvisited = new Queue();
 		unvisited.enqueue(this.getCell(startRow, startCol));
@@ -107,7 +115,7 @@ public class Grid {
 		Cell currentCell;
 
 		while(!unvisited.isEmpty()){
-			System.out.println(unvisited.toString()); 
+			//System.out.println(unvisited.toString());
 			currentCell = unvisited.dequeue();
 
 			Cell[] possibleMoves = this.getAllNeighbors(currentCell.row, currentCell.col);
@@ -130,5 +138,16 @@ public class Grid {
     		}
 		}
 		return false;
+	}
+
+	public String toString(){
+		String gridString = "";
+		for (int row = 0; row < gridValues.length; row++) {
+			for (int col = 0; col < gridValues[0].length; col++) {
+				gridString += this.gridValues[row][col].value + ":" + this.gridValues[row][col].depth + "\t";
+			}
+			gridString += "\n";
+		}
+		return gridString;
 	}
 }
