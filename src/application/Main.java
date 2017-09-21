@@ -29,10 +29,15 @@ public class Main extends Application {
 //		Optional<String> result = dialog.showAndWait();
 //		int n = Integer.valueOf(result.get());
 //
-//		Grid gridStruct = new Grid(n); //created a data structure to represent the grid and cells and moved generation code there
-//		GridPane grid = new GridPane();
+//		String searchType = "Basic Hill Climb";
+//		long startTime = System.nanoTime();
+//		Grid gridStruct = this.basicHillClimb(100000, n);
+//		long endTime = System.nanoTime();
+//		int gridValue = gridStruct.evaluate();
 //
-//		gridStruct.setUpFullGridVisualization();//sets up the grid to be visualized with colors, and adds depths(num of moves) from start
+//		int searchTime = (int) ((endTime - startTime)/1000000);
+//
+//		GridPane grid = new GridPane();
 //
 //	    for (int row = 0; row < n; row++) {
 //	        for (int col = 0; col < n; col++) {
@@ -64,7 +69,7 @@ public class Main extends Application {
 //
 //	    Scene scene = new Scene(grid, 500, 500);
 //
-//	    primaryStage.setTitle("Grid");
+//	    primaryStage.setTitle(searchType + " | Value: "+gridValue+ " | Search Time: " + searchTime+ "ms");
 //	    primaryStage.setScene(scene);
 //	    primaryStage.show();
 
@@ -72,25 +77,28 @@ public class Main extends Application {
 	    //System.out.println(gridStruct);
 	    //System.out.println(gridStruct.evaluate());
 
-	    System.out.println(this.basicHillClimb(100000).evaluate());
-	    System.out.println(this.hillClimbWithRandomRestarts(100, 100000).evaluate());
-	    System.out.println(this.hillClimbWithRandomWalk(.00001, 100000).evaluate());
-	    System.out.println(this.simulatedAnnealing(100000, 10, .99).evaluate());
+//	    System.out.println(this.basicHillClimb(100000, n).evaluate());
+//	    System.out.println(this.hillClimbWithRandomRestarts(100, 10000, n).evaluate());
+//	    System.out.println(this.hillClimbWithRandomWalk(.1, 100000, n).evaluate());
+//	    System.out.println(this.simulatedAnnealing(100000, 2, .8, n).evaluate());
+
+		//this.testAllSearches();
 	}
 
 	public static void main(String[] args) {
 		launch(args);
 	}
 
-	public Grid basicHillClimb(int iterations){
-		int size = 5;
+
+
+	public Grid basicHillClimb(int iterations, int size){
 		Grid gridStruct = new Grid(size);
 
 		int currentBestEval = gridStruct.evaluate();
 		//System.out.println(currentBestEval);
 		//System.out.println(gridStruct);
 		int newEval;
-		int tempVal, tempRow, tempCol;//holds the old value
+		int tempVal;//holds the old value
 		for(int i = 0; i <= iterations; i++){
 
 			//gets a random row and column and figures out an acceptable result
@@ -146,15 +154,15 @@ public class Main extends Application {
 		return gridStruct;
 	}
 
-	public Grid hillClimbWithRandomRestarts(int restarts, int iterations){
+	public Grid hillClimbWithRandomRestarts(int restarts, int iterations, int size){
 		Grid currentBestGrid = null;
 		int currentBestEval = 0;
 		for(int i = 0; i <= restarts; i++){
 			if(currentBestGrid == null){
-				currentBestGrid = this.basicHillClimb(iterations);
+				currentBestGrid = this.basicHillClimb(iterations, size);
 				currentBestEval = currentBestGrid.evaluate();
 			}else{
-				Grid newGrid = this.basicHillClimb(iterations);
+				Grid newGrid = this.basicHillClimb(iterations, size);
 				int newEval = newGrid.evaluate();
 				if(newEval>currentBestEval){
 					currentBestGrid = newGrid;
@@ -165,15 +173,18 @@ public class Main extends Application {
 		return currentBestGrid;
 	}
 
-	public Grid hillClimbWithRandomWalk(double downhillProb, int iterations){
-		int size = 5;
+	public Grid hillClimbWithRandomWalk(double downhillProb, int iterations, int size){
 		Grid gridStruct = new Grid(size);
 
 		int currentBestEval = gridStruct.evaluate();
+
+		//keeps track of overall best so it never ignores a peak that it may have reached and not returned to
+		int overallBestEval = currentBestEval;
+		Cell[][] overallBestGridValues = gridStruct.gridValues.clone();
 		//System.out.println(currentBestEval);
 		//System.out.println(gridStruct);
 		int newEval;
-		int tempVal, tempRow, tempCol;//holds the old value
+		int tempVal;//holds the old value
 		for(int i = 0; i <= iterations; i++){
 
 			//gets a random row and column and figures out an acceptable result
@@ -219,6 +230,10 @@ public class Main extends Application {
 			//System.out.println(acceptDownhill);
 			if(newEval>=currentBestEval || acceptDownhill){
 				currentBestEval = newEval;
+				if(currentBestEval>overallBestEval){
+					overallBestEval = currentBestEval;
+					overallBestGridValues = gridStruct.gridValues.clone();
+				}
 			}else{
 				//System.out.println("Rejected transform, changing back");
 				gridStruct.gridValues[randRow][randCol].value = tempVal;
@@ -229,20 +244,24 @@ public class Main extends Application {
 			}
 			//System.out.println("-------");
 		}
-
+		gridStruct.gridValues = overallBestGridValues;
+		gridStruct.evaluate();
 		return gridStruct;
 	}
 
-	public Grid simulatedAnnealing(int iterations, int initTemp, double decayRate){
-		int currentTemp = initTemp;
-		int size = 5;
+	public Grid simulatedAnnealing(int iterations, double initTemp, double decayRate, int size){
+		double currentTemp = initTemp;
 		Grid gridStruct = new Grid(size);
 
 		int currentBestEval = gridStruct.evaluate();
+
+		//keeps track of overall best so it never ignores a peak that it may have reached and not returned to
+		int overallBestEval = currentBestEval;
+		Cell[][] overallBestGridValues = gridStruct.gridValues.clone();
 		//System.out.println(currentBestEval);
 		//System.out.println(gridStruct);
 		int newEval;
-		int tempVal, tempRow, tempCol;//holds the old value
+		int tempVal;//holds the old value
 		for(int i = 0; i <= iterations; i++){
 
 			//gets a random row and column and figures out an acceptable result
@@ -288,6 +307,10 @@ public class Main extends Application {
 			//System.out.println(acceptDownhill);
 			if(acceptDownhill){
 				currentBestEval = newEval;
+				if(newEval>overallBestEval){
+					overallBestEval = currentBestEval;
+					overallBestGridValues = gridStruct.gridValues.clone();
+				}
 			}else{
 				//System.out.println("Rejected transform, changing back");
 				gridStruct.gridValues[randRow][randCol].value = tempVal;
@@ -297,8 +320,93 @@ public class Main extends Application {
 				//System.out.println("---");
 			}
 			//System.out.println("-------");
+			currentTemp *= decayRate;
 		}
-		currentTemp *= decayRate;
+		gridStruct.gridValues = overallBestGridValues;
+		gridStruct.evaluate();
 		return gridStruct;
+	}
+
+	public void testAllSearches(){
+	    //Testing code
+		System.out.println("Basic Hill Climbing");
+	    System.out.println("Iter\t5x5\t7x7\t9x9\t11x11");
+	    for(int i = 0; i <= 5000; i+=100){
+	    	int total5 = 0;
+	    	int total7 = 0;
+	    	int total9 = 0;
+	    	int total11 = 0;
+	    	for(int j = 0; j < 50; j++){
+	    		total5 += this.basicHillClimb(i, 5).evaluate();
+	    		total7 += this.basicHillClimb(i, 7).evaluate();
+	    		total9 += this.basicHillClimb(i, 9).evaluate();
+	    		total11 += this.basicHillClimb(i, 11).evaluate();
+	    	}
+	    	int avgForIterations5 = total5/50;
+	    	int avgForIterations7 = total7/50;
+	    	int avgForIterations9 = total9/50;
+	    	int avgForIterations11 = total11/50;
+	    	System.out.println(i + "\t" + avgForIterations5 + "\t" + avgForIterations7 + "\t" + avgForIterations9 + "\t" + avgForIterations11);
+	    }
+
+  	    System.out.println("Hill Climb With Random Restarts (50 restarts)");
+	    System.out.println("Iter\t5x5\t7x7\t9x9\t11x11");
+	    for(int i = 0; i <= 5000; i+=100){
+	    	int total5 = 0;
+	    	int total7 = 0;
+	    	int total9 = 0;
+	    	int total11 = 0;
+	    	for(int j = 0; j < 50; j++){
+	    		total5 += this.hillClimbWithRandomRestarts(50, i/50, 5).evaluate();
+	    		total7 += this.hillClimbWithRandomRestarts(50, i/50, 7).evaluate();
+	    		total9 += this.hillClimbWithRandomRestarts(50, i/50, 9).evaluate();
+	    		total11 += this.hillClimbWithRandomRestarts(50, i/50, 11).evaluate();
+	    	}
+	    	int avgForIterations5 = total5/50;
+	    	int avgForIterations7 = total7/50;
+	    	int avgForIterations9 = total9/50;
+	    	int avgForIterations11 = total11/50;
+	    	System.out.println(i + "\t" + avgForIterations5 + "\t" + avgForIterations7 + "\t" + avgForIterations9 + "\t" + avgForIterations11);
+	    }
+
+	    System.out.println("Hill Climb with Random Walk (p = .01)");
+	    System.out.println("Iter\t5x5\t7x7\t9x9\t11x11");
+	    for(int i = 0; i <= 5000; i+=100){
+	    	int total5 = 0;
+	    	int total7 = 0;
+	    	int total9 = 0;
+	    	int total11 = 0;
+	    	for(int j = 0; j < 50; j++){
+	    		total5 += this.hillClimbWithRandomWalk(.01, i, 5).evaluate();
+	    		total7 += this.hillClimbWithRandomWalk(.01, i, 7).evaluate();
+	    		total9 += this.hillClimbWithRandomWalk(.01, i, 9).evaluate();
+	    		total11 += this.hillClimbWithRandomWalk(.01, i, 11).evaluate();
+	    	}
+	    	int avgForIterations5 = total5/50;
+	    	int avgForIterations7 = total7/50;
+	    	int avgForIterations9 = total9/50;
+	    	int avgForIterations11 = total11/50;
+	    	System.out.println(i + "\t" + avgForIterations5 + "\t" + avgForIterations7 + "\t" + avgForIterations9 + "\t" + avgForIterations11);
+	    }
+
+	    System.out.println("Simulated Annealing (temp = 2, decay = .95)");
+	    System.out.println("Iter\t5x5\t7x7\t9x9\t11x11");
+	    for(int i = 0; i <= 5000; i+=100){
+	    	int total5 = 0;
+	    	int total7 = 0;
+	    	int total9 = 0;
+	    	int total11 = 0;
+	    	for(int j = 0; j < 50; j++){
+	    		total5 += this.simulatedAnnealing(i, 2, .95, 5).evaluate();
+	    		total7 += this.simulatedAnnealing(i, 2, .95, 7).evaluate();
+	    		total9 += this.simulatedAnnealing(i, 2, .95, 9).evaluate();
+	    		total11 += this.simulatedAnnealing(i, 2, .95, 11).evaluate();
+	    	}
+	    	int avgForIterations5 = total5/50;
+	    	int avgForIterations7 = total7/50;
+	    	int avgForIterations9 = total9/50;
+	    	int avgForIterations11 = total11/50;
+	    	System.out.println(i + "\t" + avgForIterations5 + "\t" + avgForIterations7 + "\t" + avgForIterations9 + "\t" + avgForIterations11);
+	    }
 	}
 }
