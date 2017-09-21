@@ -21,57 +21,57 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 
-//		TextInputDialog dialog = new TextInputDialog("11");
-//		dialog.setTitle("Dimensions");
-//		dialog.setHeaderText("What are the dimensions of your NxN square");
-//		dialog.setContentText("Please enter your N:");
-//
-//		Optional<String> result = dialog.showAndWait();
-//		int n = Integer.valueOf(result.get());
-//
-//		String searchType = "Basic Hill Climb";
-//		long startTime = System.nanoTime();
-//		Grid gridStruct = this.basicHillClimb(100000, n);
-//		long endTime = System.nanoTime();
-//		int gridValue = gridStruct.evaluate();
-//
-//		int searchTime = (int) ((endTime - startTime)/1000000);
-//
-//		GridPane grid = new GridPane();
-//
-//	    for (int row = 0; row < n; row++) {
-//	        for (int col = 0; col < n; col++) {
-//	        	Text numberText;
-//	            Rectangle rec = new Rectangle();
-//	            rec.setWidth(40);
-//	            rec.setHeight(40);
-//
-//	            if(gridStruct.getCell(row, col).depth == 0 && gridStruct.getCell(row, col).isVisited){
-//	            	rec.setFill(Color.LIGHTBLUE);
-//	            }else if(gridStruct.getCell(row, col).isVisited){
-//	            	rec.setFill(Color.GREEN);
-//	            }else{
-//	            	rec.setFill(Color.RED);
-//	            }
-//	            rec.setStroke(Color.BLACK);
-//
-//	            //Create container to be able to hold text
-//	            StackPane pane = new StackPane();
-//	            numberText = new Text(gridStruct.getCell(row, col).value+":"+gridStruct.getCell(row, col).depth);
-//
-//	            //add in text
-//	            pane.getChildren().addAll(rec, numberText);
-//	            GridPane.setRowIndex(pane, row);
-//	            GridPane.setColumnIndex(pane, col);
-//	            grid.getChildren().add(pane);
-//	        }
-//	    }
-//
-//	    Scene scene = new Scene(grid, 500, 500);
-//
-//	    primaryStage.setTitle(searchType + " | Value: "+gridValue+ " | Search Time: " + searchTime+ "ms");
-//	    primaryStage.setScene(scene);
-//	    primaryStage.show();
+		TextInputDialog dialog = new TextInputDialog("11");
+		dialog.setTitle("Dimensions");
+		dialog.setHeaderText("What are the dimensions of your NxN square");
+		dialog.setContentText("Please enter your N:");
+
+		Optional<String> result = dialog.showAndWait();
+		int n = Integer.valueOf(result.get());
+
+		String searchType = "Simulated Annealing";
+		long startTime = System.nanoTime();
+		Grid gridStruct = this.simulatedAnnealing(100000, 2, .95, n);
+		long endTime = System.nanoTime();
+		int gridValue = gridStruct.evaluate();
+
+		int searchTime = (int) ((endTime - startTime)/1000000);
+
+		GridPane grid = new GridPane();
+
+	    for (int row = 0; row < n; row++) {
+	        for (int col = 0; col < n; col++) {
+	        	Text numberText;
+	            Rectangle rec = new Rectangle();
+	            rec.setWidth(40);
+	            rec.setHeight(40);
+
+	            if(gridStruct.getCell(row, col).depth == 0 && gridStruct.getCell(row, col).isVisited){
+	            	rec.setFill(Color.LIGHTBLUE);
+	            }else if(gridStruct.getCell(row, col).isVisited){
+	            	rec.setFill(Color.GREEN);
+	            }else{
+	            	rec.setFill(Color.RED);
+	            }
+	            rec.setStroke(Color.BLACK);
+
+	            //Create container to be able to hold text
+	            StackPane pane = new StackPane();
+	            numberText = new Text(gridStruct.getCell(row, col).value+":"+gridStruct.getCell(row, col).depth);
+
+	            //add in text
+	            pane.getChildren().addAll(rec, numberText);
+	            GridPane.setRowIndex(pane, row);
+	            GridPane.setColumnIndex(pane, col);
+	            grid.getChildren().add(pane);
+	        }
+	    }
+
+	    Scene scene = new Scene(grid, 500, 500);
+
+	    primaryStage.setTitle(searchType + " | N: "+n+ " | Value: "+gridValue+ " | Search Time: " + searchTime+ "ms");
+	    primaryStage.setScene(scene);
+	    primaryStage.show();
 
 	    //this evaluates the shortest number of moves from the given start to the end
 	    //System.out.println(gridStruct);
