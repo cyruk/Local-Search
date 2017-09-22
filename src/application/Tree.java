@@ -1,23 +1,21 @@
 package application;
 
-import java.util.*;
-
 public class Tree{
-    private Node root;
-    private Node current;
+    public Node root;
 
-    public Tree(int data) {
-        root = new Node(data);
-        current = root;
-    }
-    
-    public Node getRoot()
+    public Tree()
     {
-    	return root;
+    	root = null;
     }
-    
-    public void add(int data)
+
+    public Tree(Cell contents)
     {
-    	current.add(data, current);
+    	root = new Node(contents);
     }
+
+    public void add(Cell contents)
+    {
+    	root.children.add(new Node(contents));
+    }
+
 }

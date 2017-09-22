@@ -1,29 +1,85 @@
 package application;
 
+import java.util.ArrayList;
+
 public class Queue{
-	private Node root;
-	private Node current;
+		/*public ArrayList<Cell> list = new ArrayList<Cell>();
+
+		public void push(Cell cell){
+			this.list.add(cell);
+		}
+
+		public Cell pop(){
+
+			Cell tail = this.isEmpty() ? null : this.list.get(0);
+			this.list.remove(0);
+			return tail;
+		}
+
+		public boolean isEmpty(){
+			return this.list.isEmpty();
+		}
+
+		public String toString(){
+			String listString = "";
+
+			for (Cell c : this.list)
+			{
+			    listString += c+"|";
+			}
+
+			return listString;
+		}*/
+	//I think this is more efficient than arraylists
 	
-	public Queue(int data)
-	{
-		root = new Node(data);
-		current = root;
+	public Node tail;
+	public void enqueue(Cell cell){
+		Node temp = new Node(cell);
+		if (tail == null)
+		{
+			tail = temp;
+			tail.next = tail;
+		}
+		else
+		{
+			temp.next = tail.next;
+			tail.next = temp;
+			tail = temp;
+		}
+	}
+	
+	public Cell dequeue(){
+		Node temp = tail.next;
+		if (tail == tail.next)
+		{
+			tail = null;
+		}
+		else
+		{
+			tail.next = tail.next.next;
+		}
+		return temp.contents;
 	}
 	
 	public Node peek()
 	{
-		return current;
+		return tail.next;
 	}
 	
-	public Node dequeue()
+	public boolean isEmpty()
 	{
-		Node temp = root;
-		root = root.getNext();
-		return temp;
+		return tail == null;
 	}
 	
-	public void enqueue(int data)
+	public String toString()
 	{
-		current.add(data);
+		String listString = "";
+		Node temp = tail.next;
+		do
+		{
+			listString += temp.contents.toString()+"|";
+			temp = temp.next;
+		}while (temp != tail);
+		return listString;
 	}
 }
