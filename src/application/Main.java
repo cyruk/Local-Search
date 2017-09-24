@@ -1,9 +1,17 @@
 package application;
 
+import java.awt.Desktop;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Scanner;
 
 import javafx.application.Application;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.TextInputDialog;
@@ -19,8 +27,55 @@ public class Main extends Application {
 
 
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(Stage primaryStage) throws FileNotFoundException {
 
+		/*TextInputDialog dialog = new TextInputDialog("1");
+		dialog.setTitle("Choice");
+		dialog.setHeaderText("1: read from file \n2: choose something else");
+		dialog.setContentText("Enter number:");
+
+		Optional<String> result = dialog.showAndWait();
+		int n = Integer.valueOf(result.get());
+		
+		Grid gridStruct;
+		int size = 0;
+		gridStruct = new Grid(n);
+		
+		/*if (n == 1)
+		{
+			int row = 0;
+			int col = 0;
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Open Resource File");
+			File file = fileChooser.showOpenDialog(primaryStage);
+			if (file != null) 
+			{
+				try 
+				{
+		            Scanner inFile = new Scanner(new FileReader(file.getPath()));
+		            size = inFile.nextInt();
+		            gridStruct = new Grid(size);
+		            System.out.println(size);
+		            while(inFile.hasNext()) 
+		            {
+	            		gridStruct.gridValues[row][col].value = inFile.nextInt();
+	            		col++;
+	            		if (col == size)
+	            		{
+	            			col = 0;
+	            			row++;
+	            		}
+		            }   
+		            inFile.close();
+		            System.out.println(gridStruct);
+		            System.out.println(gridStruct.evaluate());
+		        }
+		        catch(FileNotFoundException ex) 
+				{
+		            System.out.println("Unable to open file '" + file.getName() + "'");                
+		        }
+            }
+		}*/
 		TextInputDialog dialog = new TextInputDialog("11");
 		dialog.setTitle("Dimensions");
 		dialog.setHeaderText("What are the dimensions of your NxN square");
@@ -30,8 +85,6 @@ public class Main extends Application {
 		int n = Integer.valueOf(result.get());
 
 		Grid gridStruct = new Grid(n); //created a data structure to represent the grid and cells and moved generation code there
-		Grid gridStruct1 = new Grid(n);
-	    Grid gridStruct2 = new Grid(n);
 		GridPane grid = new GridPane();
 
 		gridStruct.setUpFullGridVisualization();//sets up the grid to be visualized with colors, and adds depths(num of moves) from start
@@ -60,39 +113,312 @@ public class Main extends Application {
 	            pane.getChildren().addAll(rec, numberText);
 	            GridPane.setRowIndex(pane, row);
 	            GridPane.setColumnIndex(pane, col);
-            grid.getChildren().add(pane);
+	            grid.getChildren().add(pane);
 	        }
 	    }
 
 	    Scene scene = new Scene(grid, 500, 500);
 
-	    primaryStage.setTitle("Grid");
+	    primaryStage.setTitle("Evaluation: " + gridStruct.evaluate());
 	    primaryStage.setScene(scene);
-	    primaryStage.show();
+	    //primaryStage.show();
 	    
-	    System.out.println(gridStruct);
-	    System.out.println(gridStruct.evaluate());
-	    System.out.println(gridStruct1);
-	    System.out.println(gridStruct1.evaluate());
-	    System.out.println(gridStruct2);
-	    System.out.println(gridStruct2.evaluate());
-	    
-	    Grid[] hello = {gridStruct, gridStruct1, gridStruct2};
-	    hello = genetics(hello, 3, 5, 1);
-	    
-	    System.out.println(hello[0]);
-	    System.out.println(hello[0].evaluate());
-	    System.out.println(hello[1]);
-	    System.out.println(hello[1].evaluate());
-	    System.out.println(hello[2]);
-	    System.out.println(hello[2].evaluate());
+	    Grid hello = genetics(gridStruct.gridValues.length, 10000, 3, 10, 100, 10);
+	    System.out.println(hello);
+	    System.out.println(hello.evaluate());
+	}
+
+	private TextInputDialog newTextInputDialog() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public static void main(String[] args) {
 		launch(args);
 	}
 
+	public Grid genetics(int size, int n, int choice, int crossover, int popSize, int tournamentSize)
+	{
+		/*Scanner sc = new Scanner(System.in);
+		
+		System.out.print("Enter initial population size: ");
+		int popSize = sc.nextInt();
+		
+		System.out.print("1: single point, 2: two point, 3: uniform crossover ");
+		int choice = sc.nextInt();
+		
+		int choice3 = 0;
+		int choice2 = 0;
+		
+		if (choice == 1)
+		{
+			System.out.print("1: fixed, 2: random ");
+			choice2 = sc.nextInt();
+			if (choice2 == 1)
+			{
+				System.out.print("What is the crossover point ");
+				choice3 = sc.nextInt();
+			}
+		}*/
+		int choice3 = 0;
+		//create an initial population
+		Grid[] chromosomes = new Grid[popSize];
+		Grid[] chosen = new Grid[popSize];
+		Grid[] tournament = new Grid[tournamentSize];
+		for (int i = 0; i < popSize; i++)
+		{
+			chromosomes[i] = new Grid(size);
+			chosen[i] = new Grid(size);
+		}
+		
+		double[] evaluations = new double[popSize];
+		double[] probability = new double[popSize];
+		double sum = 0;
+		double rand;
+		double mutationRate = .015;
+		double crossoverRate = .9;
+		int max = 0;
+		int probCounter = 0;
+		int counter = 0;
+		Random randomGenerator = new Random();
+		int randRow = 0;
+		int randCol = 0;
+		int randValue = 0;
 
+		for (int w = 0; w < n; w++)
+		{
+			sum = 0;
+			
+			
+				/*
+				//evaluate every chromosome
+				for(int i = 0; i < chromosomes.length; i++)
+				{
+					evaluations[i] = chromosomes[i].evaluate();
+					if (evaluations[i] > 0)
+					{
+						sum += evaluations[i];
+					}
+					else
+					{
+						sum += Math.abs(1/(evaluations[i] - 1));
+					}
+				}
+				//calculate the probability and selects the best candidate to move onto the next generation
+				//very skewed towards positive values negative values have a nearly zero percent chance of being selected
+				for(int i = 0; i < chromosomes.length; i++)
+				{
+					if (i != 0)
+					{
+						if (evaluations[i] > 0)
+						{
+							//stack the probabilities 
+							probability[i] = (evaluations[i] / sum) + probability[i - 1];
+						}
+						else
+						{
+							probability[i] = (Math.abs(1/(evaluations[i] - 1)) / sum) + probability[i - 1];
+						}
+					}
+					else
+					{
+						probability[i] = evaluations[i] / sum;
+					}
+					if (evaluations[i] > evaluations[max])
+					{
+						max = i;
+					}
+				}
+				
+				//chooses the next generation
+				for (int i = 0; i < chromosomes.length; i++)
+				{
+					rand = randomGenerator.nextDouble();				
+					if (i != 0)
+					{
+						probCounter = 0;
+						do
+						{
+							probCounter++;
+							if (probCounter == popSize)
+							{
+								probCounter = popSize - 1;
+								break;
+							}
+						}while(rand > probability[probCounter]);	
+					}
+					else
+					{
+						probCounter = max;
+					}
+					chosen[i].gridValues = chromosomes[probCounter].gridValues;
+					probCounter = 0;
+				}*/
+			
+			//get the tournament size then evaluate them all then choose the best ones
+			for (int j = 0; j < popSize; j++)
+			{
+				//select the best from the tournament
+				for (int i = 0; i < tournamentSize; i++)
+				{
+					randValue = randomGenerator.nextInt(popSize);
+					if (chromosomes[randValue].evaluate() > max)
+					{
+						chosen[j].gridValues = chromosomes[randValue].gridValues;
+						max = chromosomes[randValue].evaluate();
+					}
+				}
+			}
+			
+			
+			
+			//figure out crossovers
+			for (int i = 0; i < chromosomes.length; i++)
+			{
+				//single crossover at a chosen point or at a random crossover point
+				if (choice == 1)
+				{
+					for (int row = 0; row < size; row++)
+					{
+						for (int col = 0; col < size; col++)
+						{
+							if (choice == 2 && i % 2 == 0)
+							{
+								crossover = randomGenerator.nextInt(size * size) + 1; //random crossover
+							}
+							if (counter < crossover)
+							{
+								chromosomes[i].gridValues[row][col].value = chosen[i].gridValues[row][col].value;
+							}
+							else
+							{
+								if (i % 2 == 0)
+								{
+									chromosomes[i].gridValues[row][col].value = chosen[i + 1].gridValues[row][col].value;
+								}
+								else if (i % 2 == 1)
+								{
+									chromosomes[i].gridValues[row][col].value = chosen[i - 1].gridValues[row][col].value;
+								}
+							}
+							
+							counter++;
+						}
+					}
+				}
+				else if (choice == 2) //two point cross over
+				{
+					choice3 = size * size / 4;
+					int secondPoint = (int)(size * size / (1.5));
+					for (int row = 0; row < size; row++)
+					{
+						for (int col = 0; col < size; col++)
+						{
+							if (counter < choice3 || counter > secondPoint)
+							{
+								chromosomes[i].gridValues[row][col].value = chosen[i].gridValues[row][col].value;
+							}
+							else
+							{
+								if (i % 2 == 0)
+								{
+									chromosomes[i].gridValues[row][col].value = chosen[i + 1].gridValues[row][col].value;
+								}
+								else if (i % 2 == 1)
+								{
+									chromosomes[i].gridValues[row][col].value = chosen[i - 1].gridValues[row][col].value;
+								}
+							}
+							
+							counter++;
+						}
+					}
+				}
+				else //uniform one
+				{
+					for (int row = 0; row < size; row++)
+					{
+						for (int col = 0; col < size; col++)
+						{
+							if (randomGenerator.nextDouble() <= crossoverRate)
+							{
+								chromosomes[i].gridValues[row][col].value = chosen[i].gridValues[row][col].value;
+							}
+							else
+							{
+								if (i % 2 == 0)
+								{
+									chromosomes[i].gridValues[row][col].value = chosen[i + 1].gridValues[row][col].value;
+								}
+								else if (i % 2 == 1)
+								{
+									chromosomes[i].gridValues[row][col].value = chosen[i - 1].gridValues[row][col].value;
+								}
+							}
+							
+							counter++;
+						}
+					}
+				}
+				counter = 0;
+				for (int row = 0; row < size; row++)
+				{
+					for (int col = 0; col < size; col++)
+					{
+						if (randomGenerator.nextDouble() <= mutationRate)
+						{
+							if (randRow >= randCol) 
+							{
+									if ((size - 1) - randCol >= randRow - 0) 
+									{
+										do
+										{
+											randValue = randomGenerator.nextInt((size - 1) - randCol) + 1;
+										}while(randValue == chromosomes[i].gridValues[randRow][randCol].value);
+										chromosomes[i].gridValues[randRow][randCol].value  = randValue;
+									} 
+									else 
+									{
+										do
+										{
+											randValue = randomGenerator.nextInt(randRow - 0) + 1;
+										}while(randValue == chromosomes[i].gridValues[randRow][randCol].value);
+										chromosomes[i].gridValues[randRow][randCol].value  = randValue;
+									}
+							} 
+							else 
+							{
+								if ((size - 1) - randRow >= randCol - 0) 
+								{
+									do
+									{
+										randValue = randomGenerator.nextInt((size - 1) - randRow) + 1;
+									}while(randValue == chromosomes[i].gridValues[randRow][randCol].value);
+									chromosomes[i].gridValues[randRow][randCol].value  = randValue;
+								} 
+								else 
+								{
+									do
+									{
+										randValue =randomGenerator.nextInt(randCol - 0) + 1;
+									}while(randValue == chromosomes[i].gridValues[randRow][randCol].value);
+									chromosomes[i].gridValues[randRow][randCol].value  = randValue;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		for (int j = 0; j < popSize; j++)
+		{
+			if (chromosomes[j].evaluate() > max)
+			{
+				max = j;
+			}
+		}
+		return chromosomes[max];
+	}
 
 	public Grid basicHillClimb(int iterations, int size){
 		Grid gridStruct = new Grid(size);
@@ -412,149 +738,5 @@ public class Main extends Application {
 	    	System.out.println(i + "\t" + avgForIterations5 + "\t" + avgForIterations7 + "\t" + avgForIterations9 + "\t" + avgForIterations11);
 	    }
 	}
-	
-	public Grid[] genetics(Grid[] chromosomes, int crossover, int size, int n)
-	{
-		int randRow = 0;
-		int randCol = 0;
-		for (int w = 0; w < n; w++)
-		{
-			double a = chromosomes[0].evaluate();
-			double b = chromosomes[1].evaluate();
-			double c = chromosomes[2].evaluate();
-			
-			//figure out a better way
-			if (a < 0)
-			{
-				a = 1/Math.abs(a - 1);
-			}
-			
-			if (b < 0)
-			{
-				b = 1/Math.abs(b - 1);
-			}
-			
-			if (c < 0)
-			{
-				c = 1/Math.abs(c - 1);
-			}
-			
-			double prob1 = a / (a + b + c);
-			double prob2 = b / (a + b + c);
-			
-			Random randomGenerator = new Random();
-			double randChoser;
-			Grid[] chosen = new Grid[3];
-			prob1 = .333;
-			prob2 = .333;
-			//choose which one has children based on probability and works correctly
-			for (int i = 0; i < 3; i++)
-			{
-				randChoser = randomGenerator.nextDouble();
-				if (randChoser <= prob1)
-				{
-					System.out.println("1");
-					chosen[i] = chromosomes[0];
-				}
-				else if (randChoser <= prob1 + prob2)
-				{
-					System.out.println("2");
-					chosen[i] = chromosomes[1];
-				}
-				else
-				{
-					System.out.println("3");
-					chosen[i] = chromosomes[2];
-				}
-			}
-			
-			System.out.println();
-			System.out.println("chromosome " + 0);
-			System.out.println(chromosomes[0]);
-			System.out.println();
-			System.out.println("chromosome " + 1);
-			System.out.println(chromosomes[1]);
-			System.out.println();
-			System.out.println("chromosome " + 2);
-			System.out.println(chromosomes[2]);
-			//crossover and mutation
-			for (int i = 0; i < 3; i++)
-			{
-				for(int row = 0; row < size; row++)
-				{
-					for(int col = 0; col < size; col++)
-					{
-						//anything less than the crossover value is the original
-						if (col < crossover)
-						{
-							chromosomes[i].gridValues[row][col] = chosen[i].gridValues[row][col];
-						}
-						else
-						{
-							if (i == 2)
-							{
-								chromosomes[i].gridValues[row][col] = chosen[0].gridValues[row][col];
-							}
-							else
-							{
-								chromosomes[i].gridValues[row][col] = chosen[i + 1].gridValues[row][col];
-							}
-						}
-					}
-				}
-				System.out.println();
-				System.out.println("chromosome " + i);
-				System.out.println(chromosomes[i]);
-				do{
-					randRow = randomGenerator.nextInt(size-1);
-					randCol = randomGenerator.nextInt(size-1);
-				}while(randRow == size - 1 && randCol == size - 1);
-	
-				int tempValue;
-				if (randRow >= randCol) 
-				{
-						if ((size - 1) - randCol >= randRow - 0) 
-						{
-							do
-							{
-								tempValue = randomGenerator.nextInt((size - 1) - randCol) + 1;
-							} while(tempValue == chromosomes[i].gridValues[randRow][randCol].value);
-							chromosomes[i].gridValues[randRow][randCol].value  = tempValue;
-						} 
-						else 
-						{
-							do
-							{
-								tempValue = randomGenerator.nextInt(randRow - 0) + 1;
-							} while(tempValue == chromosomes[i].gridValues[randRow][randCol].value);
-							chromosomes[i].gridValues[randRow][randCol].value  = tempValue;
-						}
-				} 
-				else 
-				{
-					if ((size - 1) - randRow >= randCol - 0) 
-					{
-						do
-						{
-							tempValue = randomGenerator.nextInt((size - 1) - randRow) + 1;
-						} while(tempValue == chromosomes[i].gridValues[randRow][randCol].value);
-						chromosomes[i].gridValues[randRow][randCol].value  = tempValue;
-					} 
-					else 
-					{
-						do
-						{
-							tempValue = randomGenerator.nextInt(randCol - 0) + 1;
-						} while(tempValue == chromosomes[i].gridValues[randRow][randCol].value);
-						chromosomes[i].gridValues[randRow][randCol].value  = tempValue;
-					}
-				}
-				/*System.out.println();
-				System.out.println("chromosome " + i);
-				System.out.println(chromosomes[i]);*/
-			}
-		}
-		
-		return chromosomes;
-	}
+
 }
