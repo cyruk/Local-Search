@@ -76,6 +76,8 @@ public class Main extends Application {
 		        }
             }
 		}*/
+		
+		
 		TextInputDialog dialog = new TextInputDialog("11");
 		dialog.setTitle("Dimensions");
 		dialog.setHeaderText("What are the dimensions of your NxN square");
@@ -88,7 +90,18 @@ public class Main extends Application {
 		GridPane grid = new GridPane();
 
 		gridStruct.setUpFullGridVisualization();//sets up the grid to be visualized with colors, and adds depths(num of moves) from start
+		
+		/*String searchType = "Simulated Annealing";
+		long startTime = System.nanoTime();
+		gridStruct = this.genetics(100000, 100, 10, .015, 30, n);
+		long endTime = System.nanoTime();
+		int gridValue = gridStruct.evaluate();
 
+		int searchTime = (int) ((endTime - startTime)/1000000);
+		System.out.println(gridStruct);
+	    System.out.println(gridStruct.evaluate());
+	    System.out.println(searchTime);*/
+		
 	    for (int row = 0; row < n; row++) {
 	        for (int col = 0; col < n; col++) {
 	        	Text numberText;
@@ -122,10 +135,8 @@ public class Main extends Application {
 	    primaryStage.setTitle("Evaluation: " + gridStruct.evaluate());
 	    primaryStage.setScene(scene);
 	    //primaryStage.show();
+	    testAllSearches();
 	    
-	    Grid hello = genetics(gridStruct.gridValues.length, 10000, 3, 10, 100, 10);
-	    System.out.println(hello);
-	    System.out.println(hello.evaluate());
 	}
 
 	private TextInputDialog newTextInputDialog() {
@@ -137,287 +148,272 @@ public class Main extends Application {
 		launch(args);
 	}
 
-	public Grid genetics(int size, int n, int choice, int crossover, int popSize, int tournamentSize)
+	public Grid genetics(int repeat, int popSize, int tournySize, double mutationRate2, int eliteSize, int size)
 	{
-		/*Scanner sc = new Scanner(System.in);
+		//generate the initial population and setting them in an array
+		Grid[] parents = new Grid[popSize];
+		//grid holder
+		Grid[] holder = new Grid[popSize];
+		//children of the parents
+		//stores the fitness values so evaluate doesn't need to be called multiple times
+		int[] fitness = new int[popSize];
+		//create probability that the parent is selected for the next generation
+		double[] probability = new double[popSize];
+		//tournament may be used here
+		Grid[] tournamentPop = new Grid[tournySize];
+		//tournament number
+		int tournyIndex = 0;
+		//elitism passes the fittest to the next generation
+		int maxIndex = 0;
+		int maxFitness = 0;
+		//sum adds up the fitness
+		double sum = 0;
+		//counter for crossover
+		int counter = 0;
+		//crossover int
+		int crossover = 0;
+		//random generator
+		Random randomGenerator = new Random();
+		//random number
+		double rand = 0;
+		//random value
+		int randValue = 0;
+		//mutation chance
+		double mutationRate = mutationRate2;
+		//elitism switch 1 = yes
+		Grid[] elite = new Grid[popSize];
+		int eliteNum = eliteSize;
+		int max = 0;
+		int asdf = repeat + 1;
+		//string array
+		String[] chromosomes = new String[popSize];
 		
-		System.out.print("Enter initial population size: ");
-		int popSize = sc.nextInt();
-		
-		System.out.print("1: single point, 2: two point, 3: uniform crossover ");
-		int choice = sc.nextInt();
-		
-		int choice3 = 0;
-		int choice2 = 0;
-		
-		if (choice == 1)
-		{
-			System.out.print("1: fixed, 2: random ");
-			choice2 = sc.nextInt();
-			if (choice2 == 1)
-			{
-				System.out.print("What is the crossover point ");
-				choice3 = sc.nextInt();
-			}
-		}*/
-		int choice3 = 0;
-		//create an initial population
-		Grid[] chromosomes = new Grid[popSize];
-		Grid[] chosen = new Grid[popSize];
-		Grid[] tournament = new Grid[tournamentSize];
+		//random generator to generate the parents for the next generation
 		for (int i = 0; i < popSize; i++)
 		{
-			chromosomes[i] = new Grid(size);
-			chosen[i] = new Grid(size);
-		}
-		
-		double[] evaluations = new double[popSize];
-		double[] probability = new double[popSize];
-		double sum = 0;
-		double rand;
-		double mutationRate = .015;
-		double crossoverRate = .9;
-		int max = 0;
-		int probCounter = 0;
-		int counter = 0;
-		Random randomGenerator = new Random();
-		int randRow = 0;
-		int randCol = 0;
-		int randValue = 0;
-
-		for (int w = 0; w < n; w++)
-		{
-			sum = 0;
-			
-			
-				/*
-				//evaluate every chromosome
-				for(int i = 0; i < chromosomes.length; i++)
-				{
-					evaluations[i] = chromosomes[i].evaluate();
-					if (evaluations[i] > 0)
-					{
-						sum += evaluations[i];
-					}
-					else
-					{
-						sum += Math.abs(1/(evaluations[i] - 1));
-					}
-				}
-				//calculate the probability and selects the best candidate to move onto the next generation
-				//very skewed towards positive values negative values have a nearly zero percent chance of being selected
-				for(int i = 0; i < chromosomes.length; i++)
-				{
-					if (i != 0)
-					{
-						if (evaluations[i] > 0)
-						{
-							//stack the probabilities 
-							probability[i] = (evaluations[i] / sum) + probability[i - 1];
-						}
-						else
-						{
-							probability[i] = (Math.abs(1/(evaluations[i] - 1)) / sum) + probability[i - 1];
-						}
-					}
-					else
-					{
-						probability[i] = evaluations[i] / sum;
-					}
-					if (evaluations[i] > evaluations[max])
-					{
-						max = i;
-					}
-				}
-				
-				//chooses the next generation
-				for (int i = 0; i < chromosomes.length; i++)
-				{
-					rand = randomGenerator.nextDouble();				
-					if (i != 0)
-					{
-						probCounter = 0;
-						do
-						{
-							probCounter++;
-							if (probCounter == popSize)
-							{
-								probCounter = popSize - 1;
-								break;
-							}
-						}while(rand > probability[probCounter]);	
-					}
-					else
-					{
-						probCounter = max;
-					}
-					chosen[i].gridValues = chromosomes[probCounter].gridValues;
-					probCounter = 0;
-				}*/
-			
-			//get the tournament size then evaluate them all then choose the best ones
-			for (int j = 0; j < popSize; j++)
+			parents[i] = new Grid(size);
+			holder[i] = new Grid(size);
+			elite[i] = new Grid(size);
+			if (i < tournySize)
 			{
-				//select the best from the tournament
-				for (int i = 0; i < tournamentSize; i++)
+				tournamentPop[i] = new Grid(size);
+			}
+		}
+		/*elite = parents;
+		
+		//sorts the arrays 
+		//might not be needed
+        for (int i = 1; i < elite.length; i++) 
+        {
+            Grid key = elite[i];
+            int j = i - 1;
+            while (j > -1 && elite[j].evaluate() > key.evaluate()) 
+            {
+                elite[j+1] = elite[j];
+                j--;
+            }
+            elite[j+1] = key;
+        }*/
+        
+		do
+		{
+			asdf--;
+			//sorts the arrays
+			elite = parents;
+	        for (int i = 1; i < elite.length; i++) 
+	        {
+	            Grid key = elite[i];
+	            int j = i - 1;
+	            while (j > -1 && elite[j].evaluate() > key.evaluate()) 
+	            {
+	                elite[j+1] = elite[j];
+	                j--;
+	            }
+	            elite[j+1] = key;
+	        }
+	        
+			/*for (int i = 0; i < popSize; i++)
+			{
+				fitness[i] = parents[i].evaluate();
+				if (fitness[i] < 0)
 				{
-					randValue = randomGenerator.nextInt(popSize);
-					if (chromosomes[randValue].evaluate() > max)
+					sum += (double)1 / Math.abs(fitness[i] - 1);
+				}
+				else
+				{
+					sum += fitness[i];
+				}
+			}
+			
+			//calculates the probability of selection for crossover for every parent
+			for (int i = 0; i < popSize; i++)
+			{
+				if (i == 0)
+				{
+					if (fitness[i] > 0)
 					{
-						chosen[j].gridValues = chromosomes[randValue].gridValues;
-						max = chromosomes[randValue].evaluate();
+						probability[i] = (fitness[i] / sum);
+					}
+					else
+					{
+						probability[i] = ((1 / Math.abs(fitness[i])) / sum);
+					}
+				}
+				else
+				{
+					if (fitness[i] > 0)
+					{
+						probability[i] = (fitness[i] / sum) + probability[i-1];
+					}
+					else
+					{
+						probability[i] = ((1 / Math.abs(fitness[i])) / sum) + probability[i-1];
 					}
 				}
 			}
 			
-			
-			
-			//figure out crossovers
-			for (int i = 0; i < chromosomes.length; i++)
+			//chooses the parents for the next generation
+			for (int j = 0; j < popSize; j++)
 			{
-				//single crossover at a chosen point or at a random crossover point
-				if (choice == 1)
+				rand = Math.random(); 
+				for (int i = 0; i < popSize; i++)
 				{
-					for (int row = 0; row < size; row++)
+					if (rand < probability[i])
 					{
-						for (int col = 0; col < size; col++)
+						for (int row = 0; row < parents[i].gridValues.length; row++)
 						{
-							if (choice == 2 && i % 2 == 0)
+							for (int col = 0; col < parents[i].gridValues.length; col++)
 							{
-								crossover = randomGenerator.nextInt(size * size) + 1; //random crossover
+								holder[j].gridValues[row][col].value = parents[i].gridValues[row][col].value;
 							}
+						}
+						break;
+					}
+				}
+			}*/
+			
+			for (int j = 0; j < popSize; j++)
+			{
+				max = 0;
+				maxIndex = 0;
+				for (int i = 0; i < tournySize; i++)
+				{
+					randValue = randomGenerator.nextInt(popSize);
+					tournamentPop[i] = parents[randValue];
+					if (tournamentPop[i].evaluate() > max)
+					{
+						maxIndex = i;
+					}
+				}
+				for (int row = 0; row < parents[j].gridValues.length; row++)
+				{
+					for (int col = 0; col < parents[j].gridValues.length; col++)
+					{
+						holder[j].gridValues[row][col].value = tournamentPop[maxIndex].gridValues[row][col].value;
+					}
+				}
+			}
+			
+			//crossover and mutation work fine
+			for(int i = 0; i < popSize; i++)
+			{
+				//elite are moved to the next generation without changes
+				if (i < eliteNum)
+				{
+					for (int row = 0; row < parents[i].gridValues.length; row++)
+					{
+						for (int col = 0; col < parents[i].gridValues.length; col++)
+						{
+							parents[i].gridValues[row][col].value = elite[elite.length - (i + 1)].gridValues[row][col].value;
+						}
+					}
+				}
+				else
+				{
+					//don't change crossover point for the parent until both have been crossed over
+					if (i % 2 == 0)
+					{
+						crossover = randomGenerator.nextInt(parents[i].gridValues.length * parents[i].gridValues.length);
+					}
+					for (int row = 0; row < parents[i].gridValues.length; row++)
+					{
+						for (int col = 0; col < parents[i].gridValues.length; col++)
+						{
 							if (counter < crossover)
 							{
-								chromosomes[i].gridValues[row][col].value = chosen[i].gridValues[row][col].value;
+								parents[i].gridValues[row][col].value = holder[i].gridValues[row][col].value;
 							}
 							else
 							{
+								//even take the values of the next one and odds take the values of the previous
 								if (i % 2 == 0)
 								{
-									chromosomes[i].gridValues[row][col].value = chosen[i + 1].gridValues[row][col].value;
+									parents[i].gridValues[row][col].value = holder[i + 1].gridValues[row][col].value;
 								}
 								else if (i % 2 == 1)
 								{
-									chromosomes[i].gridValues[row][col].value = chosen[i - 1].gridValues[row][col].value;
+									parents[i].gridValues[row][col].value = holder[i - 1].gridValues[row][col].value;
 								}
 							}
-							
 							counter++;
 						}
 					}
-				}
-				else if (choice == 2) //two point cross over
-				{
-					choice3 = size * size / 4;
-					int secondPoint = (int)(size * size / (1.5));
-					for (int row = 0; row < size; row++)
+					for (int row = 0; row < parents[i].gridValues.length; row++)
 					{
-						for (int col = 0; col < size; col++)
+						for (int col = 0; col < parents[i].gridValues.length; col++)
 						{
-							if (counter < choice3 || counter > secondPoint)
+							if (row == 0 && col == 0)
 							{
-								chromosomes[i].gridValues[row][col].value = chosen[i].gridValues[row][col].value;
+								break;
 							}
-							else
+							if (Math.random() < mutationRate)
 							{
-								if (i % 2 == 0)
+								if (row >= col) 
 								{
-									chromosomes[i].gridValues[row][col].value = chosen[i + 1].gridValues[row][col].value;
-								}
-								else if (i % 2 == 1)
-								{
-									chromosomes[i].gridValues[row][col].value = chosen[i - 1].gridValues[row][col].value;
-								}
-							}
-							
-							counter++;
-						}
-					}
-				}
-				else //uniform one
-				{
-					for (int row = 0; row < size; row++)
-					{
-						for (int col = 0; col < size; col++)
-						{
-							if (randomGenerator.nextDouble() <= crossoverRate)
-							{
-								chromosomes[i].gridValues[row][col].value = chosen[i].gridValues[row][col].value;
-							}
-							else
-							{
-								if (i % 2 == 0)
-								{
-									chromosomes[i].gridValues[row][col].value = chosen[i + 1].gridValues[row][col].value;
-								}
-								else if (i % 2 == 1)
-								{
-									chromosomes[i].gridValues[row][col].value = chosen[i - 1].gridValues[row][col].value;
-								}
-							}
-							
-							counter++;
-						}
-					}
-				}
-				counter = 0;
-				for (int row = 0; row < size; row++)
-				{
-					for (int col = 0; col < size; col++)
-					{
-						if (randomGenerator.nextDouble() <= mutationRate)
-						{
-							if (randRow >= randCol) 
-							{
-									if ((size - 1) - randCol >= randRow - 0) 
+									if ((size - 1) - col >= row - 0) 
 									{
 										do
 										{
-											randValue = randomGenerator.nextInt((size - 1) - randCol) + 1;
-										}while(randValue == chromosomes[i].gridValues[randRow][randCol].value);
-										chromosomes[i].gridValues[randRow][randCol].value  = randValue;
+											randValue  = randomGenerator.nextInt((size - 1) - col) + 1;
+										}while(randValue == parents[i].gridValues[row][col].value);
+										parents[i].gridValues[row][col].value = randValue;
 									} 
 									else 
 									{
 										do
 										{
-											randValue = randomGenerator.nextInt(randRow - 0) + 1;
-										}while(randValue == chromosomes[i].gridValues[randRow][randCol].value);
-										chromosomes[i].gridValues[randRow][randCol].value  = randValue;
+											randValue  = randomGenerator.nextInt(row - 0) + 1;
+										}while(randValue == parents[i].gridValues[row][col].value);
+										parents[i].gridValues[row][col].value = randValue;
 									}
-							} 
-							else 
-							{
-								if ((size - 1) - randRow >= randCol - 0) 
-								{
-									do
-									{
-										randValue = randomGenerator.nextInt((size - 1) - randRow) + 1;
-									}while(randValue == chromosomes[i].gridValues[randRow][randCol].value);
-									chromosomes[i].gridValues[randRow][randCol].value  = randValue;
 								} 
 								else 
 								{
-									do
+									if ((size - 1) - row >= col - 0) 
 									{
-										randValue =randomGenerator.nextInt(randCol - 0) + 1;
-									}while(randValue == chromosomes[i].gridValues[randRow][randCol].value);
-									chromosomes[i].gridValues[randRow][randCol].value  = randValue;
+										do
+										{
+											randValue = randomGenerator.nextInt((size - 1) - row) + 1;
+										}while(randValue == parents[i].gridValues[row][col].value);
+										parents[i].gridValues[row][col].value = randValue;
+									} 
+									else 
+									{
+										do
+										{
+											randValue =randomGenerator.nextInt(col - 0) + 1;
+										}while(randValue == parents[i].gridValues[row][col].value);
+										parents[i].gridValues[row][col].value = randValue;
+									}
 								}
-							}
+							}	
 						}
 					}
 				}
+				counter = 0;
 			}
-		}
-		for (int j = 0; j < popSize; j++)
-		{
-			if (chromosomes[j].evaluate() > max)
-			{
-				max = j;
-			}
-		}
-		return chromosomes[max];
+		}while(asdf > 0);
+		return parents[0];
 	}
 
 	public Grid basicHillClimb(int iterations, int size){
@@ -477,7 +473,7 @@ public class Main extends Application {
 				//System.out.println(gridStruct);
 				//System.out.println("---");
 			}
-			//System.out.println("-------");
+		//System.out.println("-------");
 		}
 
 		return gridStruct;
@@ -658,7 +654,7 @@ public class Main extends Application {
 
 	public void testAllSearches(){
 	    //Testing code
-		System.out.println("Basic Hill Climbing");
+		/*System.out.println("Basic Hill Climbing");
 	    System.out.println("Iter\t5x5\t7x7\t9x9\t11x11");
 	    for(int i = 0; i <= 5000; i+=100){
 	    	int total5 = 0;
@@ -730,6 +726,26 @@ public class Main extends Application {
 	    		total7 += this.simulatedAnnealing(i, 2, .95, 7).evaluate();
 	    		total9 += this.simulatedAnnealing(i, 2, .95, 9).evaluate();
 	    		total11 += this.simulatedAnnealing(i, 2, .95, 11).evaluate();
+	    	}
+	    	int avgForIterations5 = total5/50;
+	    	int avgForIterations7 = total7/50;
+	    	int avgForIterations9 = total9/50;
+	    	int avgForIterations11 = total11/50;
+	    	System.out.println(i + "\t" + avgForIterations5 + "\t" + avgForIterations7 + "\t" + avgForIterations9 + "\t" + avgForIterations11);
+	    }*/
+		
+		System.out.println("Genetic Algorithm (popSize = 100, tournamentSize = 10, mutationRate = .015, eliteSize = 30)");
+	    System.out.println("Iter\t5x5\t7x7\t9x9\t11x11");
+	    for(int i = 0; i <= 5000; i+=100){
+	    	int total5 = 0;
+	    	int total7 = 0;
+	    	int total9 = 0;
+	    	int total11 = 0;
+	    	for(int j = 0; j < 50; j++){
+	    		total5 += this.genetics(i, 100, 10, .015, 30, 5).evaluate();
+	    		total7 += this.genetics(i, 100, 10,  .015, 30, 7).evaluate();
+	    		total9 += this.genetics(i, 100, 10, .015, 30, 9).evaluate();
+	    		total11 += this.genetics(i, 100, 10, .015, 30, 11).evaluate();
 	    	}
 	    	int avgForIterations5 = total5/50;
 	    	int avgForIterations7 = total7/50;

@@ -75,8 +75,6 @@ public class Grid {
 		return neigbors;
 	}
 
-
-
 	public void setUpFullGridVisualization(){
 		bfs(0,0);
 	}
