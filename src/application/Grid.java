@@ -137,7 +137,7 @@ public class Grid {
 		}
 		return false;
 	}
-
+	
 	public String toString(){
 		String gridString = "";
 		for (int row = 0; row < gridValues.length; row++) {

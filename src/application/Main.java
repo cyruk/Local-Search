@@ -11,12 +11,16 @@ import java.util.Random;
 import java.util.Scanner;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -24,86 +28,225 @@ import javafx.scene.text.Text;
 
 public class Main extends Application {
 
-
+	Stage window;
+	Stage window2;
+    Button button;
+    Button button1;
+    TextField hello;
+    TextField hello2;
+    TextField hello3;
+    TextField hello4;
+    TextField hello5;
+    TextField hello6;
+    Text description;
+    Text description2;
+    Text description3;
+    Text description4;
+    Text description5;
+    Text description6;
+    Grid gridStruct;
+	int size = 0;
 
 	@Override
 	public void start(Stage primaryStage) throws FileNotFoundException {
 
-		/*TextInputDialog dialog = new TextInputDialog("1");
-		dialog.setTitle("Choice");
-		dialog.setHeaderText("1: read from file \n2: choose something else");
-		dialog.setContentText("Enter number:");
-
-		Optional<String> result = dialog.showAndWait();
-		int n = Integer.valueOf(result.get());
 		
-		Grid gridStruct;
-		int size = 0;
-		gridStruct = new Grid(n);
-		
-		/*if (n == 1)
-		{
-			int row = 0;
-			int col = 0;
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Open Resource File");
-			File file = fileChooser.showOpenDialog(primaryStage);
-			if (file != null) 
-			{
-				try 
-				{
-		            Scanner inFile = new Scanner(new FileReader(file.getPath()));
-		            size = inFile.nextInt();
-		            gridStruct = new Grid(size);
-		            System.out.println(size);
-		            while(inFile.hasNext()) 
-		            {
-	            		gridStruct.gridValues[row][col].value = inFile.nextInt();
-	            		col++;
-	            		if (col == size)
-	            		{
-	            			col = 0;
-	            			row++;
-	            		}
-		            }   
-		            inFile.close();
-		            System.out.println(gridStruct);
-		            System.out.println(gridStruct.evaluate());
-		        }
-		        catch(FileNotFoundException ex) 
-				{
-		            System.out.println("Unable to open file '" + file.getName() + "'");                
-		        }
+		window = primaryStage;
+        window.setTitle("Choice");
+        description = new Text("1: read in a file, 2: random generation, 3: basic hill climbing");
+        description2 = new Text("4: hill climbing random restart 5: hill climbing random walk");
+        description3 = new Text("6: simulated annealing, 7: genetic algorithm");
+        hello = new TextField();
+        button = new Button("Button");
+        
+        button.setOnAction(e -> {
+            if (hello.getText().equals("1"))
+            {
+            	//read from file
+                int row = 0;
+    			int col = 0;
+    			FileChooser fileChooser = new FileChooser();
+    			fileChooser.setTitle("Open Resource File");
+    			File file = fileChooser.showOpenDialog(primaryStage);
+    			if (file != null) 
+    			{
+    				try 
+    				{
+    		            Scanner inFile = new Scanner(new FileReader(file.getPath()));
+    		            size = inFile.nextInt();
+    		            gridStruct = new Grid(size);
+    		            System.out.println(size);
+    		            while(inFile.hasNext()) 
+    		            {
+    	            		gridStruct.gridValues[row][col].value = inFile.nextInt();
+    	            		col++;
+    	            		if (col == size)
+    	            		{
+    	            			col = 0;
+    	            			row++;
+    	            		}
+    		            }   
+    		            inFile.close();
+    		            System.out.println(gridStruct);
+    		            System.out.println(gridStruct.evaluate());
+    		            showGrid(gridStruct, primaryStage);
+    		        }
+    		        catch(FileNotFoundException ex) 
+    				{
+    		            System.out.println("Unable to open file '" + file.getName() + "'");                
+    		        }
+                }
             }
-		}*/
-		
-		
-		TextInputDialog dialog = new TextInputDialog("11");
-		dialog.setTitle("Dimensions");
-		dialog.setHeaderText("What are the dimensions of your NxN square");
-		dialog.setContentText("Please enter your N:");
+            else if (hello.getText().equals("2"))
+            {
+            	//random generation
+            	description = new Text("Enter the size");
+                hello = new TextField();
+                button1 = new Button("Button");
+                VBox layout = new VBox(10);
+                layout.getChildren().addAll(description, hello, button1);
+                layout.setAlignment(Pos.CENTER);
+                Scene scene = new Scene(layout, 400, 400);
+                button1.setOnAction(f -> {
+                	gridStruct = new Grid(Integer.parseInt(hello.getText()));
+	                showGrid(new Grid(Integer.parseInt(hello.getText())), primaryStage);
+                });
+                window.setScene(scene);
+                window.show();  
+            }
+            else if (hello.getText().equals("3"))
+            {
+            	//hill climbing 
+            	description = new Text("Enter the size");
+                hello = new TextField();
+                description2 = new Text("Enter the iterations");
+                hello2 = new TextField();
+                button1 = new Button("Button");
+                VBox layout = new VBox(10);
+                layout.getChildren().addAll(description, hello, description2, hello2, button1);
+                layout.setAlignment(Pos.CENTER);
+                Scene scene = new Scene(layout, 400, 400);
+                button1.setOnAction(f -> {
+                	gridStruct = basicHillClimb(Integer.parseInt(hello2.getText()), Integer.parseInt(hello.getText()));
+	                showGrid(gridStruct, primaryStage);
+                });
+                window.setScene(scene);
+                window.show();  
+            }
+            else if (hello.getText().equals("4"))
+            {
+            	//hill climbing random restart
+            	description = new Text("Enter the size");
+                hello = new TextField();
+                description2 = new Text("Enter the iterations");
+                hello2 = new TextField();
+                description3 = new Text("Enter the restarts");
+                hello3 = new TextField();
+                button1 = new Button("Button");
+                VBox layout = new VBox(10);
+                layout.getChildren().addAll(description, hello, description2, hello2, description3, hello3, button1);
+                layout.setAlignment(Pos.CENTER);
+                Scene scene = new Scene(layout, 400, 400);
+                button1.setOnAction(f -> {
+                	gridStruct = hillClimbWithRandomRestarts(Integer.parseInt(hello3.getText()), Integer.parseInt(hello2.getText()), Integer.parseInt(hello.getText()));
+	                showGrid(gridStruct, primaryStage);
+                });
+                window.setScene(scene);
+                window.show();  
+            }
+            else if (hello.getText().equals("5"))
+            {
+            	//hill climbing random walk
+            	description = new Text("Enter the size");
+                hello = new TextField();
+                description2 = new Text("Enter the iterations");
+                hello2 = new TextField();
+                description3 = new Text("Enter the downhill probability (double)");
+                hello3 = new TextField();
+                button1 = new Button("Button");
+                VBox layout = new VBox(10);
+                layout.getChildren().addAll(description, hello, description2, hello2, description3, hello3, button1);
+                layout.setAlignment(Pos.CENTER);
+                Scene scene = new Scene(layout, 400, 400);
+                button1.setOnAction(f -> {
+                	gridStruct = hillClimbWithRandomWalk(Double.parseDouble(hello3.getText()), Integer.parseInt(hello2.getText()), Integer.parseInt(hello.getText()));
+	                showGrid(gridStruct, primaryStage);
+                });
+                window.setScene(scene);
+                window.show();  
+            }        
+            else if (hello.getText().equals("6"))
+            {
+            	//simulated annealing
+            	description = new Text("Enter the size");
+                hello = new TextField();
+                description2 = new Text("Enter the iterations");
+                hello2 = new TextField();
+                description3 = new Text("Enter the initial Temp (double)");
+                hello3 = new TextField();
+                description4 = new Text("Enter the decay rate (double)");
+                hello4 = new TextField();
+                button1 = new Button("Button");
+                VBox layout = new VBox(10);
+                layout.getChildren().addAll(description, hello, description2, hello2, description3, hello3, description4, hello4, button1);
+                layout.setAlignment(Pos.CENTER);
+                Scene scene = new Scene(layout, 400, 400);
+                button1.setOnAction(f -> {
+                	gridStruct = simulatedAnnealing(Integer.parseInt(hello2.getText()), Double.parseDouble(hello3.getText()), 
+                			Double.parseDouble(hello4.getText()), Integer.parseInt(hello.getText()));
+	                showGrid(gridStruct, primaryStage);
+                });
+                window.setScene(scene);
+                window.show();  
+            }
+            else if (hello.getText().equals("7"))
+            {
+            	//genetics
+            	description = new Text("Enter the size");
+                hello = new TextField();
+                description2 = new Text("Enter the iterations");
+                hello2 = new TextField();
+                description3 = new Text("Enter the initial population");
+                hello3 = new TextField();
+                description4 = new Text("Enter the tournament size");
+                hello4 = new TextField();
+                description5 = new Text("Enter the elite size");
+                hello5 = new TextField();
+                description6 = new Text("Enter the mutation rate (double)");
+                hello6 = new TextField();
+                button1 = new Button("Button");
+                VBox layout = new VBox(10);
+                layout.getChildren().addAll(description, hello, description2, hello2, description3, 
+                		hello3, description4, hello4, description5, hello5, 
+                		 description6, hello6, button1);
+                layout.setAlignment(Pos.CENTER);
+                Scene scene = new Scene(layout, 400, 400);
+                button1.setOnAction(f -> {
+                	gridStruct = genetics(Integer.parseInt(hello2.getText()), Integer.parseInt(hello3.getText()), Integer.parseInt(hello4.getText()), 
+                			Double.parseDouble(hello6.getText()), Integer.parseInt(hello5.getText()), Integer.parseInt(hello.getText()));
+	                showGrid(gridStruct, primaryStage);
+                });
+                window.setScene(scene);
+                window.show();  
+            }
+        });
 
-		Optional<String> result = dialog.showAndWait();
-		int n = Integer.valueOf(result.get());
-
-		Grid gridStruct = new Grid(n); //created a data structure to represent the grid and cells and moved generation code there
+        VBox layout = new VBox(10);
+        layout.getChildren().addAll(description, description2, description3, hello, button);
+        layout.setAlignment(Pos.CENTER);
+        Scene scene = new Scene(layout, 400, 400);
+        window.setScene(scene);
+        window.show();  
+	}
+	
+	public void showGrid(Grid gridStruct, Stage primaryStage)
+	{
 		GridPane grid = new GridPane();
 
 		gridStruct.setUpFullGridVisualization();//sets up the grid to be visualized with colors, and adds depths(num of moves) from start
 		
-		/*String searchType = "Simulated Annealing";
-		long startTime = System.nanoTime();
-		gridStruct = this.genetics(100000, 100, 10, .015, 30, n);
-		long endTime = System.nanoTime();
-		int gridValue = gridStruct.evaluate();
-
-		int searchTime = (int) ((endTime - startTime)/1000000);
-		System.out.println(gridStruct);
-	    System.out.println(gridStruct.evaluate());
-	    System.out.println(searchTime);*/
-		
-	    for (int row = 0; row < n; row++) {
-	        for (int col = 0; col < n; col++) {
+	    for (int row = 0; row < gridStruct.gridValues.length; row++) {
+	        for (int col = 0; col < gridStruct.gridValues.length; col++) {
 	        	Text numberText;
 	            Rectangle rec = new Rectangle();
 	            rec.setWidth(40);
@@ -129,24 +272,49 @@ public class Main extends Application {
 	            grid.getChildren().add(pane);
 	        }
 	    }
-
 	    Scene scene = new Scene(grid, 500, 500);
 
 	    primaryStage.setTitle("Evaluation: " + gridStruct.evaluate());
 	    primaryStage.setScene(scene);
-	    //primaryStage.show();
-	    testAllSearches();
-	    
-	}
-
-	private TextInputDialog newTextInputDialog() {
-		// TODO Auto-generated method stub
-		return null;
+	    System.out.println(gridStruct);
+	    System.out.println(gridStruct.evaluate());
+	    primaryStage.show();
 	}
 
 	public static void main(String[] args) {
 		launch(args);
 	}
+	
+	public int partition(Grid[] grid, int low, int high)
+    {
+        int pivot = grid[high].evaluate(); 
+        int i = (low - 1);
+        for (int j = low; j < high; j++)
+        {
+            if (grid[j].evaluate() <= pivot)
+            {
+                i++;
+                Grid temp = grid[i];
+                grid[i] = grid[j];
+                grid[j] = temp;
+            }
+        }
+        Grid temp = grid[i+1];
+        grid[i + 1] = grid[high];
+        grid[high] = temp;
+        return i + 1;
+    }
+	
+	public Grid[] sort(Grid[] grid, int low, int high)
+    {
+        if (low < high)
+        {
+            int pi = partition(grid, low, high);
+            sort(grid, low, pi-1);
+            sort(grid, pi+1, high);
+        }
+        return grid;
+    }
 
 	public Grid genetics(int repeat, int popSize, int tournySize, double mutationRate2, int eliteSize, int size)
 	{
@@ -179,7 +347,8 @@ public class Main extends Application {
 		//random value
 		int randValue = 0;
 		//mutation chance
-		double mutationRate = mutationRate2;
+		//double mutationRate = mutationRate2;
+		int mutationRate = (int)(size * size * mutationRate2);
 		//elitism switch 1 = yes
 		Grid[] elite = new Grid[popSize];
 		int eliteNum = eliteSize;
@@ -194,43 +363,27 @@ public class Main extends Application {
 			parents[i] = new Grid(size);
 			holder[i] = new Grid(size);
 			elite[i] = new Grid(size);
+			chromosomes[i] = parents[i].toString();
 			if (i < tournySize)
 			{
 				tournamentPop[i] = new Grid(size);
 			}
 		}
-		/*elite = parents;
-		
-		//sorts the arrays 
-		//might not be needed
-        for (int i = 1; i < elite.length; i++) 
-        {
-            Grid key = elite[i];
-            int j = i - 1;
-            while (j > -1 && elite[j].evaluate() > key.evaluate()) 
-            {
-                elite[j+1] = elite[j];
-                j--;
-            }
-            elite[j+1] = key;
-        }*/
         
 		do
 		{
 			asdf--;
-			//sorts the arrays
-			elite = parents;
-	        for (int i = 1; i < elite.length; i++) 
-	        {
-	            Grid key = elite[i];
-	            int j = i - 1;
-	            while (j > -1 && elite[j].evaluate() > key.evaluate()) 
-	            {
-	                elite[j+1] = elite[j];
-	                j--;
-	            }
-	            elite[j+1] = key;
-	        }
+			for(int i = 0; i < popSize; i++)
+			{
+					for (int row = 0; row < parents[i].gridValues.length; row++)
+					{
+						for (int col = 0; col < parents[i].gridValues.length; col++)
+						{
+							elite[i].gridValues[row][col].value = parents[i].gridValues[row][col].value;
+						}
+					}
+			}
+			elite = sort(elite, 0, elite.length - 1);
 	        
 			/*for (int i = 0; i < popSize; i++)
 			{
@@ -292,7 +445,7 @@ public class Main extends Application {
 				}
 			}*/
 			
-			for (int j = 0; j < popSize; j++)
+			for (int j = eliteNum; j < popSize; j++)
 			{
 				max = 0;
 				maxIndex = 0;
@@ -358,57 +511,59 @@ public class Main extends Application {
 							counter++;
 						}
 					}
-					for (int row = 0; row < parents[i].gridValues.length; row++)
+					//mutation
+					for (int k = 0; k < mutationRate; k++)
 					{
-						for (int col = 0; col < parents[i].gridValues.length; col++)
-						{
-							if (row == 0 && col == 0)
+						 int randRow = 0;
+						   int randCol = 0;
+							do
 							{
-								break;
-							}
-							if (Math.random() < mutationRate)
+								randRow = randomGenerator.nextInt(parents[i].gridValues.length);
+								randCol = randomGenerator.nextInt(parents[i].gridValues.length-1);
+							}while(randRow == size - 1 && randCol == size - 1);
+							
+				
+							if (randRow >= randCol) 
 							{
-								if (row >= col) 
+								if ((size - 1) - randCol >= randRow - 0) 
 								{
-									if ((size - 1) - col >= row - 0) 
+									do
 									{
-										do
-										{
-											randValue  = randomGenerator.nextInt((size - 1) - col) + 1;
-										}while(randValue == parents[i].gridValues[row][col].value);
-										parents[i].gridValues[row][col].value = randValue;
-									} 
-									else 
-									{
-										do
-										{
-											randValue  = randomGenerator.nextInt(row - 0) + 1;
-										}while(randValue == parents[i].gridValues[row][col].value);
-										parents[i].gridValues[row][col].value = randValue;
-									}
+										randValue  = randomGenerator.nextInt((size - 1) - randCol) + 1;
+									}while(randValue == parents[i].gridValues[randRow][randCol].value);
+									parents[i].gridValues[randRow][randCol].value = randValue;
 								} 
 								else 
 								{
-									if ((size - 1) - row >= col - 0) 
+									do
 									{
-										do
-										{
-											randValue = randomGenerator.nextInt((size - 1) - row) + 1;
-										}while(randValue == parents[i].gridValues[row][col].value);
-										parents[i].gridValues[row][col].value = randValue;
-									} 
-									else 
-									{
-										do
-										{
-											randValue =randomGenerator.nextInt(col - 0) + 1;
-										}while(randValue == parents[i].gridValues[row][col].value);
-										parents[i].gridValues[row][col].value = randValue;
-									}
+										randValue  = randomGenerator.nextInt(randRow - 0) + 1;
+									}while(randValue == parents[i].gridValues[randRow][randCol].value);
+									parents[i].gridValues[randRow][randCol].value = randValue;
 								}
-							}	
+							} 
+							else 
+							{
+								if ((size - 1) - randRow >= randCol - 0) 
+								{
+									do
+									{
+										randValue = randomGenerator.nextInt((size - 1) - randRow) + 1;
+									}while(randValue == parents[i].gridValues[randRow][randCol].value);
+									parents[i].gridValues[randRow][randCol].value = randValue;
+								} 
+								else 
+								{
+									do
+									{
+										randValue =randomGenerator.nextInt(randCol - 0) + 1;
+									}while(randValue == parents[i].gridValues[randRow][randCol].value);
+									parents[i].gridValues[randRow][randCol].value = randValue;
+								}
+							}
 						}
-					}
+						 
+					
 				}
 				counter = 0;
 			}
