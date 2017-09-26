@@ -75,8 +75,6 @@ public class Grid {
 		return neigbors;
 	}
 
-
-
 	public void setUpFullGridVisualization(){
 		bfs(0,0);
 	}
@@ -139,23 +137,15 @@ public class Grid {
 		}
 		return false;
 	}
-
+	
 	public String toString(){
 		String gridString = "";
 		for (int row = 0; row < gridValues.length; row++) {
 			for (int col = 0; col < gridValues[0].length; col++) {
-				gridString += this.gridValues[row][col].value + "\t";
+				gridString += this.gridValues[row][col].value + /*":" + this.gridValues[row][col].depth +*/ "\t";
 			}
 			gridString += "\n";
 		}
 		return gridString;
-	}
-
-	public void cloneFrom(Grid original){
-		for (int row = 0; row < gridValues.length; row++) {
-			for (int col = 0; col < gridValues[0].length; col++) {
-				this.gridValues[row][col].value = original.gridValues[row][col].value;
-			}
-		}
 	}
 }

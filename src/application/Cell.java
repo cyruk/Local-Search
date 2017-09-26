@@ -11,6 +11,11 @@ public class Cell {
 		this.row = row;
 		this.col = col;
 	}
+	
+	public Cell()
+	{
+		this.value = 0;
+	}
 
 	public String toString(){
 		return (this.row+", "+this.col + ", " + this.depth + ", " + this.isVisited);
