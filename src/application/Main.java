@@ -237,6 +237,42 @@ public class Main extends Application {
         Scene scene = new Scene(layout, 400, 400);
         window.setScene(scene);
         window.show();  
+		
+		/*long startTime;
+		long endTime;
+		int[] values = new int[50];
+		int[] time = new int[50];
+		
+		System.out.println("popSize 40 with 5% tourny 30% elitism 1% mutation");
+		for (int i = 0; i < 50; i++)
+		{
+			startTime = System.nanoTime();
+			Grid gridStruct = this.genetics(8000, 40, 4, .01, 0, 11);
+			endTime = System.nanoTime();
+			values[i] = gridStruct.evaluate();
+			time[i] = (int) ((endTime - startTime)/1000000);
+		}
+		
+		for(int i = 0; i < 50; i++)
+		{
+			System.out.println(values[i]);
+		}
+		
+		for(int i = 0; i < 50; i++)
+		{
+			System.out.println(time[i]);
+		}*/
+		
+		//testAllSearches();
+		/*long endTime;
+		long startTime = System.nanoTime();
+		Grid gridStruct = this.genetics(10000, 40, 4, .01, 12, 11);
+		endTime = System.nanoTime();
+		int value = gridStruct.evaluate();
+		int time = (int) ((endTime - startTime)/1000000);
+
+		System.out.println("Genetic Algorithm|N:11|Value:" + value + "|SearchTime:" + time);
+		System.out.println(gridStruct);*/
 	}
 	
 	public void showGrid(Grid gridStruct, Stage primaryStage)
@@ -276,8 +312,6 @@ public class Main extends Application {
 
 	    primaryStage.setTitle("Evaluation: " + gridStruct.evaluate());
 	    primaryStage.setScene(scene);
-	    System.out.println(gridStruct);
-	    System.out.println(gridStruct.evaluate());
 	    primaryStage.show();
 	}
 
@@ -349,6 +383,10 @@ public class Main extends Application {
 		//mutation chance
 		//double mutationRate = mutationRate2;
 		int mutationRate = (int)(size * size * mutationRate2);
+		if(mutationRate ==0)
+		{
+			mutationRate++;
+		}
 		//elitism switch 1 = yes
 		Grid[] elite = new Grid[popSize];
 		int eliteNum = eliteSize;
@@ -384,66 +422,6 @@ public class Main extends Application {
 					}
 			}
 			elite = sort(elite, 0, elite.length - 1);
-	        
-			/*for (int i = 0; i < popSize; i++)
-			{
-				fitness[i] = parents[i].evaluate();
-				if (fitness[i] < 0)
-				{
-					sum += (double)1 / Math.abs(fitness[i] - 1);
-				}
-				else
-				{
-					sum += fitness[i];
-				}
-			}
-			
-			//calculates the probability of selection for crossover for every parent
-			for (int i = 0; i < popSize; i++)
-			{
-				if (i == 0)
-				{
-					if (fitness[i] > 0)
-					{
-						probability[i] = (fitness[i] / sum);
-					}
-					else
-					{
-						probability[i] = ((1 / Math.abs(fitness[i])) / sum);
-					}
-				}
-				else
-				{
-					if (fitness[i] > 0)
-					{
-						probability[i] = (fitness[i] / sum) + probability[i-1];
-					}
-					else
-					{
-						probability[i] = ((1 / Math.abs(fitness[i])) / sum) + probability[i-1];
-					}
-				}
-			}
-			
-			//chooses the parents for the next generation
-			for (int j = 0; j < popSize; j++)
-			{
-				rand = Math.random(); 
-				for (int i = 0; i < popSize; i++)
-				{
-					if (rand < probability[i])
-					{
-						for (int row = 0; row < parents[i].gridValues.length; row++)
-						{
-							for (int col = 0; col < parents[i].gridValues.length; col++)
-							{
-								holder[j].gridValues[row][col].value = parents[i].gridValues[row][col].value;
-							}
-						}
-						break;
-					}
-				}
-			}*/
 			
 			for (int j = eliteNum; j < popSize; j++)
 			{
@@ -897,10 +875,10 @@ public class Main extends Application {
 	    	int total9 = 0;
 	    	int total11 = 0;
 	    	for(int j = 0; j < 50; j++){
-	    		total5 += this.genetics(i, 100, 10, .015, 30, 5).evaluate();
-	    		total7 += this.genetics(i, 100, 10,  .015, 30, 7).evaluate();
-	    		total9 += this.genetics(i, 100, 10, .015, 30, 9).evaluate();
-	    		total11 += this.genetics(i, 100, 10, .015, 30, 11).evaluate();
+	    		total5 += this.genetics(i, 40, 4, .01, 12, 5).evaluate();
+	    		total7 += this.genetics(i, 40, 4,  .01, 12, 7).evaluate();
+	    		total9 += this.genetics(i, 40, 4, .01, 12, 9).evaluate();
+	    		total11 += this.genetics(i, 40, 4, .01, 12, 11).evaluate();
 	    	}
 	    	int avgForIterations5 = total5/50;
 	    	int avgForIterations7 = total7/50;
